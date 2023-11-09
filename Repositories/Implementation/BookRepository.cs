@@ -22,24 +22,28 @@ public class BookRepository : IBookRepository
 
     public async Task<IEnumerable<Book>> GetAllAsync()
     {
-        return await _dbContext.Books.ToListAsync();
+        return await _dbContext.Books.Include(x=>x.Categories).
+            Include(x=>x.Authors).ToListAsync();
     }
 
     public async Task<Book?> GetById(Guid id)
     {
-        return await _dbContext.Books.FirstOrDefaultAsync(x => x.Id == id);
+        return await _dbContext.Books.Include(x=>x.Categories).
+            Include(x=>x.Authors).FirstOrDefaultAsync(x => x.Id == id);
     }
 
     public async Task<Book?> UpdateAsync(Book book)
     {
-        var existingBook = await _dbContext.Books.FirstOrDefaultAsync(x => x.Id == book.Id);
+        var existingBook = await _dbContext.Books.Include(x=>x.Categories).
+            Include(x=>x.Authors).FirstOrDefaultAsync(x => x.Id == book.Id);
         if (existingBook != null)
         {
             _dbContext.Entry(existingBook).CurrentValues.SetValues(book);
+            existingBook.Categories = book.Categories;
+            existingBook.Authors = book.Authors;
             await _dbContext.SaveChangesAsync();
             return book;
         }
-
         return null;
     }
     

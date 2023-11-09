@@ -10,9 +10,15 @@ namespace BooksAPI.Controllers;
 public class BooksController : Controller
 {
     private readonly IBookRepository _bookRepository;
-    public BooksController(IBookRepository bookRepository)
+    private readonly IBookCategoryRepository _categoryRepository;
+    private readonly IAuthorRepository _authorRepository;
+    public BooksController(IBookRepository bookRepository, 
+        IBookCategoryRepository categoryRepository,
+        IAuthorRepository authorRepository)
     {
         _bookRepository = bookRepository;
+        _categoryRepository = categoryRepository;
+        _authorRepository = authorRepository;
     }
     
     [HttpPost]
@@ -29,8 +35,24 @@ public class BooksController : Controller
             ImageUrl = request.ImageUrl,
             WebReaderLink = request.WebReaderLink,
             UrlHadle = request.UrlHadle, 
-            Price = request.Price
+            Price = request.Price,
+            Categories = new List<BookCategory>(),
+            Authors = new List<Author>()
         };
+
+        foreach (var categoryGuid in request.Categories)
+        {
+            var existingCategory = await _categoryRepository.GetById(categoryGuid);
+            if(existingCategory !=null )
+                book.Categories.Add(existingCategory);
+        }
+        
+        foreach (var authorGuid in request.Authors)
+        {
+            var existingAuthor = await _authorRepository.GetById(authorGuid);
+            if(existingAuthor !=null )
+                book.Authors.Add(existingAuthor);
+        }
 
         book = await _bookRepository.CreateAsync(book);
         var response = new BookDto
@@ -45,7 +67,22 @@ public class BooksController : Controller
             ImageUrl = book.ImageUrl,
             WebReaderLink = book.WebReaderLink,
             UrlHadle = book.UrlHadle, 
-            Price = book.Price
+            Price = book.Price,
+            Categories = book.Categories.Select(x => new BookCategoryDto
+            {
+                Id = x.Id,
+                Name = x.Name,
+                UrlHandle = x.UrlHandle,
+                CategoryImageUrl = x.CategoryImageUrl
+                
+            }).ToList(),
+            Authors = book.Authors.Select(x => new AuthorDto
+            {
+                Id = x.Id,
+                Name = x.Name,
+                UrlHandle = x.UrlHandle,
+                AuthorImageUrl = x.AuthorImageUrl
+            }).ToList()
         };
         return Ok(response);
     }
@@ -70,7 +107,7 @@ public class BooksController : Controller
                 ImageUrl = book.ImageUrl,
                 WebReaderLink = book.WebReaderLink,
                 UrlHadle = book.UrlHadle, 
-                Price = book.Price
+                Price = book.Price,
             });
         }
         return Ok(response);
@@ -95,7 +132,22 @@ public class BooksController : Controller
             ImageUrl = existingBook.ImageUrl,
             WebReaderLink = existingBook.WebReaderLink,
             UrlHadle = existingBook.UrlHadle, 
-            Price = existingBook.Price
+            Price = existingBook.Price,
+            Categories = existingBook.Categories.Select(x => new BookCategoryDto
+            {
+                Id = x.Id,
+                Name = x.Name,
+                UrlHandle = x.UrlHandle,
+                CategoryImageUrl = x.CategoryImageUrl
+                
+            }).ToList(),
+            Authors = existingBook.Authors.Select(x => new AuthorDto
+            {
+                Id = x.Id,
+                Name = x.Name,
+                UrlHandle = x.UrlHandle,
+                AuthorImageUrl = x.AuthorImageUrl
+            }).ToList()
         };
         return Ok(response);
     }
@@ -117,15 +169,36 @@ public class BooksController : Controller
             ImageUrl = request.ImageUrl,
             WebReaderLink = request.WebReaderLink,
             UrlHadle = request.UrlHadle, 
-            Price = request.Price
+            Price = request.Price,
+            Categories = new List<BookCategory>(),
+            Authors = new List<Author>()
         };
+
+        foreach (var categoryGuid in request.Categories)
+        {
+            var existingCategory = await _categoryRepository.GetById(categoryGuid);
+            if (existingCategory != null)
+            {
+                book.Categories.Add(existingCategory);
+            }
+        }
+        
+        foreach (var authorGuid in request.Authors)
+        {
+            var existingAuthor = await _authorRepository.GetById(authorGuid);
+            if (existingAuthor != null)
+            {
+                book.Authors.Add(existingAuthor);
+            }
+        }
+        
         var updatedBook = await _bookRepository.UpdateAsync(book);
         if (updatedBook == null)
         {
             return NotFound();
         }
         // Convert Domain model to DTO
-        var response = new Book
+        var response = new BookDto
         {
             Id = book.Id,
             Title = book.Title,
@@ -137,7 +210,22 @@ public class BooksController : Controller
             ImageUrl = book.ImageUrl,
             WebReaderLink = book.WebReaderLink,
             UrlHadle = book.UrlHadle, 
-            Price = book.Price
+            Price = book.Price,
+            Categories = book.Categories.Select(x => new BookCategoryDto
+            {
+                Id = x.Id,
+                Name = x.Name,
+                UrlHandle = x.UrlHandle,
+                CategoryImageUrl = x.CategoryImageUrl
+                
+            }).ToList(),
+            Authors = book.Authors.Select(x => new AuthorDto
+            {
+                Id = x.Id,
+                Name = x.Name,
+                UrlHandle = x.UrlHandle,
+                AuthorImageUrl = x.AuthorImageUrl
+            }).ToList()
         };
         return Ok(response);
     }
@@ -164,9 +252,9 @@ public class BooksController : Controller
             ImageUrl = book.ImageUrl,
             WebReaderLink = book.WebReaderLink,
             UrlHadle = book.UrlHadle, 
-            Price = book.Price
+            Price = book.Price,
         };
-
+        
         return Ok(response);
     }
     

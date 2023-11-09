@@ -13,4 +13,6 @@ public class Book
     public string WebReaderLink { get; set; }
     public string UrlHadle { get; set; }
     public int Price { get; set; }
+    public ICollection<BookCategory> Categories { get; set; }
+    public ICollection<Author> Authors { get; set; }
 }

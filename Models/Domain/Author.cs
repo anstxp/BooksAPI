@@ -6,4 +6,5 @@ public class Author
     public string Name { get; set; }
     public string? AuthorImageUrl { get; set; }
     public string UrlHandle { get; set; }
+    public ICollection<Book> Books { get; set; }
 }

@@ -1,3 +1,5 @@
+using BooksAPI.Models.Domain;
+
 namespace BooksAPI.Models.DTO;
 
 public class BookDto
@@ -13,4 +15,6 @@ public class BookDto
     public string WebReaderLink { get; set; }
     public string UrlHadle { get; set; }
     public int Price { get; set; }
+    public List<BookCategoryDto>? Categories { get; set; } = new List<BookCategoryDto>();
+    public List<AuthorDto>? Authors { get; set; } = new List<AuthorDto>();
 }

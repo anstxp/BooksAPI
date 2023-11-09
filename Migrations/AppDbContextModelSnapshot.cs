@@ -22,6 +22,36 @@ namespace BooksAPI.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("AuthorBook", b =>
+                {
+                    b.Property<Guid>("AuthorsId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BooksId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("AuthorsId", "BooksId");
+
+                    b.HasIndex("BooksId");
+
+                    b.ToTable("AuthorBook");
+                });
+
+            modelBuilder.Entity("BookBookCategory", b =>
+                {
+                    b.Property<Guid>("BooksId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CategoriesId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("BooksId", "CategoriesId");
+
+                    b.HasIndex("CategoriesId");
+
+                    b.ToTable("BookBookCategory");
+                });
+
             modelBuilder.Entity("BooksAPI.Models.Domain.Author", b =>
                 {
                     b.Property<Guid>("Id")
@@ -113,6 +143,36 @@ namespace BooksAPI.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("BookCategories");
+                });
+
+            modelBuilder.Entity("AuthorBook", b =>
+                {
+                    b.HasOne("BooksAPI.Models.Domain.Author", null)
+                        .WithMany()
+                        .HasForeignKey("AuthorsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BooksAPI.Models.Domain.Book", null)
+                        .WithMany()
+                        .HasForeignKey("BooksId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BookBookCategory", b =>
+                {
+                    b.HasOne("BooksAPI.Models.Domain.Book", null)
+                        .WithMany()
+                        .HasForeignKey("BooksId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BooksAPI.Models.Domain.BookCategory", null)
+                        .WithMany()
+                        .HasForeignKey("CategoriesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }
