@@ -14,4 +14,5 @@ public class AppDbContext : DbContext
     
     public required DbSet<BlogPost> BlogPosts { get; set; }
     public required DbSet<BlogPostCategory> BlogPostCategories { get; set; }
+    public required DbSet<Image> Images { get; set; }
 }
