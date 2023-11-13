@@ -1,6 +1,6 @@
-namespace BooksAPI.Models.Domain;
+namespace BooksAPI.Models.DTO;
 
-public class BlogPost
+public class BlogPostDto
 {
     public Guid Id { get; set; }
     public string Title { get; set; }
@@ -11,6 +11,7 @@ public class BlogPost
     public DateTime PublishDate { get; set; }
     public Guid UserId { get; set; }
     public bool IsVisible { get; set; }
-    public ICollection<BlogPostCategory> Categories { get; set; }
-    public ICollection<Book> Books { get; set; }
+    public List<BlogPostCategoryDto>? Categories { get; set; } = new();
+    public List<BookDto>? Books { get; set; } = new();
+    
 }

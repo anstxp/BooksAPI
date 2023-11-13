@@ -42,27 +42,25 @@ public class AuthController : Controller
             var user = new User
             {
                 UserName = request.UserName,
-                FirstName = request.FirstName,
-                LastName = request.LastName,
                 PhoneNumber = request.PhoneNumber,
                 Email = request.Email,
-                Birthdate = request.Birthdate,
-                Gender = request.Gender,
-                Genre = request.Genre,
-                ProfilePhotoUrl = request.ProfilePhotoUrl
+                UserInfo = new UserInfo
+                {
+                    FirstName = request.FirstName,
+                    LastName = request.LastName,
+                    Birthdate = request.Birthdate,
+                    Gender = request.Gender,
+                    Genre = request.Genre,
+                    ProfilePhotoUrl = request.ProfilePhotoUrl
+                }
             };
-
             var identityResult = await _userManager.CreateAsync(user, request.Password);
             if (identityResult.Succeeded)
             {
-                //Add roles to this user
-                if (request.Roles.Any())
+                identityResult = await _userManager.AddToRolesAsync(user, new[] { "user" });
+                if (identityResult.Succeeded)
                 {
-                    identityResult = await _userManager.AddToRolesAsync(user, request.Roles);
-                    if (identityResult.Succeeded)
-                    {
-                        return Ok("User was registered! Please login");
-                    }
+                    return Ok("User was registered! Please login");
                 }
             }
         }
@@ -96,55 +94,64 @@ public class AuthController : Controller
     }
     
     [HttpPut]
-    [Route("{id:Guid}")]
-    public async Task<IActionResult> ChangeUserProfile([FromRoute] Guid id, UpdateProfileDto request)
+    [Route("UpdateProfile")]
+    public async Task<IActionResult> UpdateProfile(string userId, [FromBody] UpdateProfileDto request)
     {
-        var existingUserByUsername = await _userManager.FindByNameAsync(request.UserName);
-        var existingUserByEmail = await _userManager.FindByEmailAsync(request.Email);
-        
-        if (existingUserByUsername != null)
+        // Get the current user
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user != null)
         {
-            ModelState.AddModelError("UserName", "Username is already taken.");
-        }
-
-        if (existingUserByEmail != null)
-        {
-            ModelState.AddModelError("Email", "Email is already taken.");
-        }
-        var user = await _userManager.FindByEmailAsync(request.Email);
-        if (user != null && await _userManager.CheckPasswordAsync(user, request.Password))
-        {
-            //DTO to Domain Model
             var updatedUser = new User
             {
                 UserName = request.UserName,
-                FirstName = request.FirstName,
-                LastName = request.LastName,
                 PhoneNumber = request.PhoneNumber,
                 Email = request.Email,
-                Birthdate = request.Birthdate,
-                Gender = request.Gender,
-                Genre = request.Genre,
-                ProfilePhotoUrl = request.ProfilePhotoUrl
+                UserInfo = new UserInfo
+                {
+                    FirstName = request.FirstName,
+                    LastName = request.LastName,
+                    Birthdate = request.Birthdate,
+                    Gender = request.Gender,
+                    Genre = request.Genre,
+                    ProfilePhotoUrl = request.ProfilePhotoUrl
+                }
             };
-            await _userManager.UpdateAsync(updatedUser);
-            
-            //Domain model to DTO
-            var response = new UserDto
+            // Update the user in the database
+            var updateResult = await _userManager.UpdateAsync(updatedUser);
+
+            if (updateResult.Succeeded)
             {
-                UserName = updatedUser.UserName,
-                FirstName = updatedUser.FirstName,
-                LastName = updatedUser.LastName,
-                PhoneNumber = updatedUser.PhoneNumber,
-                Email = updatedUser.Email,
-                Birthdate = updatedUser.Birthdate,
-                Gender = updatedUser.Gender,
-                Genre = updatedUser.Genre,
-                ProfilePhotoUrl = updatedUser.ProfilePhotoUrl
-            };
-            return Ok(response);
+                return Ok("User profile updated successfully.");
+            }
+            else
+            {
+                return BadRequest("Failed to update user profile.");
+            }
         }
-        return BadRequest("Invalid password or user not found");
+
+        return NotFound("User not found.");
+    }
+
+    [HttpDelete]
+    [Route("DeleteAccount/{userId}")]
+    public async Task<IActionResult> DeleteAccount(string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user != null)
+        {
+            var result = await _userManager.DeleteAsync(user);
+
+            if (result.Succeeded)
+            {
+                return Ok("Account deleted successfully.");
+            }
+            else
+            {
+                return BadRequest("Failed to delete account.");
+            }
+        }
+
+        return NotFound("User not found.");
     }
     
 }

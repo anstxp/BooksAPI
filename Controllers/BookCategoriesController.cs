@@ -96,7 +96,7 @@ public class BookCategoriesController : Controller
             return NotFound();
         }
 
-        var response = new BookCategory
+        var response = new BookCategoryDto
         {
             Id = bookCategory.Id,
             Name = bookCategory.Name,

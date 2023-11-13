@@ -1,6 +1,7 @@
 using System.Text;
 using BooksAPI.Clients;
 using BooksAPI.Data;
+using BooksAPI.Models.Domain;
 using BooksAPI.Repositories.Implementation;
 using BooksAPI.Repositories.Interface;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -29,6 +30,8 @@ builder.Services.AddSingleton<Client>();
 builder.Services.AddScoped<IBookCategoryRepository, BookCategoryRepository>();
 builder.Services.AddScoped<IBookRepository, BookRepository>();
 builder.Services.AddScoped<IAuthorRepository, AuthorRepository>();
+builder.Services.AddScoped<IBlogPostCategoriesRepository, BlogPostCategoriesRepository>();
+builder.Services.AddScoped<IBlogPostRepository, BlogPostRepository>();
 builder.Services.AddScoped<ITokenRepository, TokenRepository>();
 
 builder.Services.AddIdentityCore<IdentityUser>()

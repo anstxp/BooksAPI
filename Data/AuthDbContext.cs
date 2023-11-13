@@ -1,3 +1,4 @@
+using BooksAPI.Models.Domain;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -9,7 +10,8 @@ public class AuthDbContext : IdentityDbContext
     public AuthDbContext(DbContextOptions<AuthDbContext> options) : base(options)
     {
     }
-
+    public required DbSet<User> Users { get; set; }
+    public required DbSet<UserInfo> UserInfos { get; set; }
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -32,7 +34,7 @@ public class AuthDbContext : IdentityDbContext
                 NormalizedName = "admin".ToUpper()
             }
         };
-
+        
         builder.Entity<IdentityRole>().HasData(roles);
     }
     

@@ -15,4 +15,5 @@ public class Book
     public int Price { get; set; }
     public ICollection<BookCategory> Categories { get; set; }
     public ICollection<Author> Authors { get; set; }
+    public ICollection<BlogPost> BlogPosts { get; set; }
 }
