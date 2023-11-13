@@ -20,16 +20,51 @@ public class BookRepository : IBookRepository
         return book;
     }
 
-    public async Task<IEnumerable<Book>> GetAllAsync()
+    public async Task<IEnumerable<Book>> GetAllAsync(string? filterOn = null, string? filterQuery = null,
+        string? sortBy = null, bool isAscending = true, int pageNumber = 1, int pageSize = 1000)
     {
-        return await _dbContext.Books.Include(x=>x.Categories).
-            Include(x=>x.Authors).ToListAsync();
+        var books = _dbContext.Books.Include(x => x.Categories).
+            Include(x => x.Authors).AsQueryable();
+        
+        //Filtering
+        if (string.IsNullOrWhiteSpace(filterOn) == false && string.IsNullOrWhiteSpace(filterQuery) == false)
+        {
+            if (filterOn.Equals("Category", StringComparison.OrdinalIgnoreCase))
+            {
+                books = books.Where(x => x.Categories.Any(c => c.Name.Contains(filterQuery)));
+            }
+            else if (filterOn.Equals("Author", StringComparison.OrdinalIgnoreCase))
+            {
+                books = books.Where(x => x.Authors.Any(c => c.Name.Contains(filterQuery)));
+            }
+        }
+        
+        //Sorting
+        if (string.IsNullOrWhiteSpace(sortBy) == false)
+        {
+            if (sortBy.Equals("Title", StringComparison.OrdinalIgnoreCase))
+            {
+                books = isAscending ? books.OrderBy(x => x.Title) : books.OrderByDescending(x => x.Title);
+            }
+        }
+        
+        //Pagination
+        var skipResults = (pageNumber - 1) * pageSize;
+        
+        
+        return await books.Skip(skipResults).Take(pageSize).ToListAsync();
     }
 
     public async Task<Book?> GetById(Guid id)
     {
         return await _dbContext.Books.Include(x=>x.Categories).
             Include(x=>x.Authors).FirstOrDefaultAsync(x => x.Id == id);
+    }
+
+    public async Task<Book?> GetByName(string title)
+    {
+        return await _dbContext.Books.Include(x=>x.Categories).
+            Include(x=>x.Authors).FirstOrDefaultAsync(x => x.Title.ToLower() == title.ToLower());
     }
 
     public async Task<Book?> UpdateAsync(Book book)

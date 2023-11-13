@@ -88,9 +88,13 @@ public class BooksController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAllBooks()
+    public async Task<IActionResult> GetAllBooks([FromQuery] string? filterOn,
+        [FromQuery] string? filterQuery, string? sortBy = null, bool isAscending = true,
+        [FromQuery] int pageNumber = 1, [FromQuery]int pageSize = 1000)
     {
-        var books = await _bookRepository.GetAllAsync();
+        var books = await _bookRepository.GetAllAsync(filterOn, filterQuery, 
+            sortBy, isAscending, pageNumber, pageSize);
+        
         //Convert Domain model to DTO
         var response = new List<BookDto>();
         foreach(var book in books)
@@ -108,6 +112,21 @@ public class BooksController : Controller
                 WebReaderLink = book.WebReaderLink,
                 UrlHadle = book.UrlHadle, 
                 Price = book.Price,
+                Categories = book.Categories.Select(x => new BookCategoryDto
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    UrlHandle = x.UrlHandle,
+                    CategoryImageUrl = x.CategoryImageUrl
+                
+                }).ToList(),
+                Authors = book.Authors.Select(x => new AuthorDto
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    UrlHandle = x.UrlHandle,
+                    AuthorImageUrl = x.AuthorImageUrl
+                }).ToList()
             });
         }
         return Ok(response);
@@ -257,5 +276,44 @@ public class BooksController : Controller
         
         return Ok(response);
     }
+    
+    [HttpGet("{title}")]
+    public async Task<IActionResult> GetBookByName(string title)
+    {
+        var existingBook = await _bookRepository.GetByName(title);
+        if (existingBook is null)
+            return NotFound();
+        var response = new BookDto
+        {
+            Id = existingBook.Id,
+            Title = existingBook.Title,
+            Description = existingBook.Description,
+            ISBN = existingBook.ISBN,
+            PageCount = existingBook.PageCount,
+            Publisher = existingBook.Publisher,
+            PublishedDate = existingBook.PublishedDate,
+            ImageUrl = existingBook.ImageUrl,
+            WebReaderLink = existingBook.WebReaderLink,
+            UrlHadle = existingBook.UrlHadle, 
+            Price = existingBook.Price,
+            Categories = existingBook.Categories.Select(x => new BookCategoryDto
+            {
+                Id = x.Id,
+                Name = x.Name,
+                UrlHandle = x.UrlHandle,
+                CategoryImageUrl = x.CategoryImageUrl
+                
+            }).ToList(),
+            Authors = existingBook.Authors.Select(x => new AuthorDto
+            {
+                Id = x.Id,
+                Name = x.Name,
+                UrlHandle = x.UrlHandle,
+                AuthorImageUrl = x.AuthorImageUrl
+            }).ToList()
+        };
+        return Ok(response);
+    }
+
     
 }
