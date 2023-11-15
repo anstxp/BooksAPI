@@ -1,4 +1,4 @@
-namespace BooksAPI.Models.DTO;
+namespace BooksAPI.Models.DTO.BookCategoryDto;
 
 public class UpdateBookCategoryDto
 {

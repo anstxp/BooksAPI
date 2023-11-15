@@ -9,10 +9,12 @@ public class Client
     private static string _addressBook;
     private static string _key;
 
-    public Client()
+    public Client(IConfiguration configuration)
     {
-        _addressBook = "https://www.googleapis.com/books/v1/";
-        _key = "AIzaSyD0AKMbNPGECfSOBSvt86tVQG1TW3TKsQ0";
+        var googleBooksSettings = configuration.GetSection("GoogleBooksSettings");
+        _addressBook = googleBooksSettings["AddressBook"]!;
+        _key = googleBooksSettings["Key"]!;
+
         _client = new HttpClient();
         _client.BaseAddress = new Uri(_addressBook);
     }

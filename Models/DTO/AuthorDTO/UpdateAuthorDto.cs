@@ -1,4 +1,4 @@
-namespace BooksAPI.Models.DTO;
+namespace BooksAPI.Models.DTO.AuthorDto;
 
 public class UpdateAuthorDto
 {

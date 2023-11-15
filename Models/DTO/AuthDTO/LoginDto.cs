@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace BooksAPI.Models.DTO;
+namespace BooksAPI.Models.DTO.AuthDto;
 
 public class LoginDto
 {

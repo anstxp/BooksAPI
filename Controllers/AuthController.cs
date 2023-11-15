@@ -1,5 +1,6 @@
 using BooksAPI.Models.Domain;
 using BooksAPI.Models.DTO;
+using BooksAPI.Models.DTO.AuthDto;
 using BooksAPI.Repositories.Interface;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
