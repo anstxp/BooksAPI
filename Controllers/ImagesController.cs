@@ -31,7 +31,7 @@ public class ImagesController : Controller
                  FileExtension = Path.GetExtension(request.File.FileName),
                  FileSizeInBytes = request.File.Length,
                  Name = request.Name,
-                 Descroption = request.FileDescription
+                 Description = request.FileDescription
              };
 
              await _imageRepository.Upload(imageDomainModel);

@@ -1,5 +1,8 @@
 using BooksAPI.Models.Domain;
 using BooksAPI.Models.DTO;
+using BooksAPI.Models.DTO.BlogPostCategoryDto;
+using BooksAPI.Models.DTO.BlogPostDto;
+using BooksAPI.Models.DTO.BookDTO;
 using BooksAPI.Repositories.Interface;
 using Microsoft.AspNetCore.Mvc;
 

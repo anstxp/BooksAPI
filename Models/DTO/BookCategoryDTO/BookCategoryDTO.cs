@@ -1,9 +1,9 @@
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using BooksAPI.Models.DTO.BookDTO;
 
-namespace BooksAPI.Models.Domain;
+namespace BooksAPI.Models.DTO.BookCategoryDto;
 
-public class BookCategory
+public class BookCategoryDto
 {
     public Guid Id { get; set; }
     [Required]
@@ -11,6 +11,5 @@ public class BookCategory
     [Required]
     public string UrlHandle { get; set; }
     public string? CategoryImageUrl { get; set; }
-    [ForeignKey("BookId")]
-    public ICollection<Book> Books { get; set; }
+    public ICollection<BookDto> Books { get; set; }
 }
