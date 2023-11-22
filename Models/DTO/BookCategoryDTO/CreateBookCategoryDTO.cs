@@ -4,9 +4,7 @@ namespace BooksAPI.Models.DTO.BookCategoryDto;
 
 public class CreateBookCategoryDto
 {
-    [Required]
     public string Name { get; set; }
-    [Required]
+    public string Description { get; set; }
     public string UrlHandle { get; set; }
-    public string? CategoryImageUrl { get; set; } 
 }

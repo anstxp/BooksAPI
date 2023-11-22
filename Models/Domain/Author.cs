@@ -7,11 +7,10 @@ public class Author
 {
     public Guid Id { get; set; }
     [Required]
-    public string Name { get; set; }
-    [Required]
+    public string FullName { get; set; }
     public string? AuthorImageUrl { get; set; }
+    public string? Description { get; set; }
     [Required]
     public string UrlHandle { get; set; }
-    [ForeignKey("BookId")]
     public ICollection<Book> Books { get; set; }
 }

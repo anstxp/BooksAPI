@@ -1,34 +1,14 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Identity;
 
-namespace BooksAPI.Models.DTO;
+namespace BooksAPI.Models.DTO.AuthDTO;
 
-public class UserDto
+public class UserDto 
 {
-    [Required]
-    [MinLength(3, ErrorMessage = "Username has to be minimum of 3 characters")]
-    [MaxLength(10, ErrorMessage = "Username has to be maximum of 10 characters")]
+    public string Id { get; set; }
     public string UserName { get; set; }
-    [Required]
-    [DataType(DataType.EmailAddress)]
     public string Email { get; set; }
-    [Required]
-    [MinLength(3, ErrorMessage = "Username has to be minimum of 3 characters")]
-    public string FirstName { get; set; }
-    [Required]
-    public string LastName { get; set; }
-    [MinLength(3, ErrorMessage = "Username has to be minimum of 3 characters")]
-    [Required]
-    [DataType(DataType.PhoneNumber)]
-    public string PhoneNumber { get; set; }
-    [Required]
-    [DataType(DataType.Date)]
-    public DateTime Birthdate { get; set; }
-    [Required]
-    public string Gender { get; set; }
-    public string Genre { get; set; }
-    [Required]
-    [DataType(DataType.Password)]
-    public string Password { get; set; }
-    public string ProfilePhotoUrl { get; set; }
-    public string[] Roles { get; set; }
+    [ForeignKey("UserInfoId")]
+    public UserInfoDto UserInfo { get; set; }
 }

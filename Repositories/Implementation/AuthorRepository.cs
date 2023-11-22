@@ -21,14 +21,34 @@ public class AuthorRepository : IAuthorRepository
         return author;
     }
 
-    public async Task<IEnumerable<Author>> GetAllAsync()
+    public async Task<IEnumerable<Author>> GetAllAsync(string? sortBy = null, bool isAscending = true, 
+        int pageNumber = 1, int pageSize = 1000)
     {
-        return await _dbContext.Authors.ToListAsync();
+        var authors = _dbContext.Authors.AsQueryable();
+        
+        //Sorting
+        if (string.IsNullOrWhiteSpace(sortBy) == false)
+        {
+            if (sortBy.Equals("Name", StringComparison.OrdinalIgnoreCase))
+            {
+                authors = isAscending ? authors.OrderBy(x => x.FullName) : 
+                    authors.OrderByDescending(x => x.FullName);
+            }
+        }
+        
+        var skipResults = (pageNumber - 1) * pageSize;
+        
+        return await authors.Skip(skipResults).Take(pageSize).ToListAsync();
     }
 
     public async Task<Author?> GetById(Guid id)
     {
         return await _dbContext.Authors.FirstOrDefaultAsync(x => x.Id == id);
+    }
+
+    public async Task<Author?> GetByName(string name)
+    {
+        return await _dbContext.Authors.FirstOrDefaultAsync(x => x.FullName.ToLower() == name.ToLower());
     }
 
     public async Task<Author?> UpdateAsync(Author author)

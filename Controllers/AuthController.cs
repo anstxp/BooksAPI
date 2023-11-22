@@ -1,9 +1,9 @@
 using BooksAPI.Models.Domain;
-using BooksAPI.Models.DTO;
 using BooksAPI.Models.DTO.AuthDto;
+using BooksAPI.Models.DTO.AuthDTO;
 using BooksAPI.Repositories.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BooksAPI.Controllers;
@@ -14,11 +14,15 @@ public class AuthController : Controller
 {
     private readonly UserManager<IdentityUser> _userManager;
     private readonly ITokenRepository _tokenRepository;
+    private readonly IUserRepository _userRepository;
 
-    public AuthController(UserManager<IdentityUser> userManager, ITokenRepository tokenRepository)
+    public AuthController(UserManager<IdentityUser> userManager, 
+        ITokenRepository tokenRepository,
+        IUserRepository userRepository)
     {
         _userManager = userManager;
         _tokenRepository = tokenRepository;
+        _userRepository = userRepository;
     }
 
 
@@ -80,7 +84,6 @@ public class AuthController : Controller
             {
                 //Get Roles 
                 var roles = await _userManager.GetRolesAsync(user);
-                if (roles != null)
                 {
                     var jwtToken = _tokenRepository.CreateJwtToken(user, roles.ToList());
                     var response = new LoginResponseDto
@@ -93,68 +96,65 @@ public class AuthController : Controller
         }
         return BadRequest("Something went wrong");
     }
-    
-    [HttpPut]
-    [Route("UpdateProfile")]
-    public async Task<IActionResult> UpdateProfile(string userId, [FromBody] UpdateProfileDto request)
-    {
-        // Get the current user
-        var user = await _userManager.FindByIdAsync(userId);
-        if (user != null)
-        {
-            var updatedUser = new User
-            {
-                UserName = request.UserName,
-                PhoneNumber = request.PhoneNumber,
-                Email = request.Email,
-                UserInfo = new UserInfo
-                {
-                    FirstName = request.FirstName,
-                    LastName = request.LastName,
-                    Birthdate = request.Birthdate,
-                    Gender = request.Gender,
-                    Genre = request.Genre,
-                    ProfilePhotoUrl = request.ProfilePhotoUrl
-                }
-            };
-            // Update the user in the database
-            var updateResult = await _userManager.UpdateAsync(updatedUser);
 
-            if (updateResult.Succeeded)
-            {
-                return Ok("User profile updated successfully.");
-            }
-            else
-            {
-                return BadRequest("Failed to update user profile.");
-            }
-        }
-
-        return NotFound("User not found.");
-    }
 
     [HttpDelete]
     [Route("DeleteAccount/{userId}")]
-    public async Task<IActionResult> DeleteAccount(string userId)
+    public async Task<IActionResult> DeleteAccount(Guid userId)
     {
-        var user = await _userManager.FindByIdAsync(userId);
-        if (user != null)
+        var result = await _userRepository.DeleteAsync(userId);
+
+        if (result != null)
         {
-            var result = await _userManager.DeleteAsync(user);
-
-            if (result.Succeeded)
-            {
-                return Ok("Account deleted successfully.");
-            }
-            else
-            {
-                return BadRequest("Failed to delete account.");
-            }
+            return Ok("Account deleted successfully.");
         }
-
-        return NotFound("User not found.");
+        else
+        {
+            return BadRequest("Failed to delete account.");
+        }
     }
     
+    [HttpPatch]
+    [Route("{id:Guid}")]
+    public async Task<IActionResult> EditUser([FromRoute] Guid id, [FromBody]UpdateProfileDto request)
+    {
+        var existedUser = await _userRepository.GetById(id);
+        
+        var user = new User
+        {
+            Id = id.ToString(),
+            UserName = request.UserName,
+            Email = request.Email,
+            UserInfo = new UserInfo
+            {
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                Birthdate = request.Birthdate,
+                Gender = request.Gender,
+                Genre = request.Genre,
+                ProfilePhotoUrl = request.ProfilePhotoUrl
+            }
+        };
+        
+        var updatedUser = await _userManager.UpdateAsync(user);
+        // Convert Domain model to DTO
+        var response = new UserDto
+        {
+            Id = user.Id,
+            UserName = user.UserName,
+            Email = user.Email,
+            UserInfo = new UserInfoDto()
+            {
+                FirstName = user.UserInfo.FirstName,
+                LastName = user.UserInfo.LastName,
+                Birthdate = user.UserInfo.Birthdate,
+                Gender = user.UserInfo.Gender,
+                Genre = user.UserInfo.Genre,
+                ProfilePhotoUrl = user.UserInfo.ProfilePhotoUrl
+            }
+        };
+        return Ok(response);
+    }
 }
 
 

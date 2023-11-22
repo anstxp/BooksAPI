@@ -5,18 +5,17 @@ using Newtonsoft.Json;
 
 public class Client
 {
-    private HttpClient _client;
-    private static string _addressBook;
-    private static string _key;
+    private readonly HttpClient _client;
+    private static string? _key;
 
     public Client(IConfiguration configuration)
     {
         var googleBooksSettings = configuration.GetSection("GoogleBooksSettings");
-        _addressBook = googleBooksSettings["AddressBook"]!;
+        var addressBook = googleBooksSettings["AddressBook"]!;
         _key = googleBooksSettings["Key"]!;
 
         _client = new HttpClient();
-        _client.BaseAddress = new Uri(_addressBook);
+        _client.BaseAddress = new Uri(addressBook);
     }
     public async Task<List<GoogleBook>> GetBooksAsync(string name)
     {

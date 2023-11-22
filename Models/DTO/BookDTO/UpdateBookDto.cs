@@ -7,10 +7,7 @@ public class UpdateBookDto
     public string Description { get; set; }
     public string ISBN { get; set; }
     public int PageCount { get; set; }
-    public string Publisher { get; set; }
-    public string PublishedDate { get; set; }
     public string ImageUrl { get; set; }
-    public string WebReaderLink { get; set; }
     public string UrlHadle { get; set; }
     public int Price { get; set; }
     public List<Guid> Categories { get; set; } = new List<Guid>();

@@ -3,13 +3,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BooksAPI.Models.Domain;
 
-public class BlogPostCategory
+public class OrderItem
 {
     public Guid Id { get; set; }
     [Required]
-    public string Name { get; set; }
+    [ForeignKey("Book")]
+    public Book Book { get; set; }
     [Required]
-    public string UrlHandle { get; set; }
-    [ForeignKey("BlogPostId")]
-    public ICollection<BlogPost> BlogPosts { get; set; }
+    public int Quantity { get; set; }
 }

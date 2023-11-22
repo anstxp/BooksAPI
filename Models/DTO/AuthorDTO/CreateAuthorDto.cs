@@ -4,9 +4,8 @@ namespace BooksAPI.Models.DTO.AuthorDto;
 
 public class CreateAuthorDto
 {
-    [Required]
-    public string Name { get; set; }
+    public string FullName { get; set; }
     public string? AuthorImageUrl { get; set; }
-    [Required]
+    public string? Description { get; set; }
     public string UrlHandle { get; set; }
 }

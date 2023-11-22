@@ -15,20 +15,13 @@ public class Book
     [Required]
     public int PageCount { get; set; }
     [Required]
-    public string Publisher { get; set; }
-    [Required]
-    public string PublishedDate { get; set; }
-    [Required]
     public string ImageUrl { get; set; }
-    public string WebReaderLink { get; set; }
     [Required]
     public string UrlHadle { get; set; }
     [Required]
     public int Price { get; set; }
-    [Required]
     [ForeignKey("CategoryId")]
     public ICollection<BookCategory> Categories { get; set; }
-    [Required]
     [ForeignKey("AuthorId")]
     public ICollection<Author> Authors { get; set; }
     [ForeignKey("BlogPostId")]

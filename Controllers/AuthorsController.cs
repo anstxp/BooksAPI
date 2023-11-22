@@ -1,5 +1,4 @@
 using BooksAPI.Models.Domain;
-using BooksAPI.Models.DTO;
 using BooksAPI.Models.DTO.AuthorDto;
 using BooksAPI.Repositories.Interface;
 using Microsoft.AspNetCore.Mvc;
@@ -23,7 +22,7 @@ public class AuthorsController : Controller
         //DTO to Domain model
         var author = new Author
         {
-            Name = request.Name,
+            FullName = request.FullName,
             UrlHandle = request.UrlHandle, 
             AuthorImageUrl = request.AuthorImageUrl
         };
@@ -34,7 +33,7 @@ public class AuthorsController : Controller
         var response = new AuthorDto
         {
             Id = author.Id,
-            Name = author.Name,
+            FullName = author.FullName,
             UrlHandle = author.UrlHandle,
             AuthorImageUrl = author.AuthorImageUrl
         };
@@ -52,9 +51,10 @@ public class AuthorsController : Controller
             response.Add(new AuthorDto
             {
                 Id = author.Id,
-                Name = author.Name,
+                FullName = author.FullName,
                 UrlHandle = author.UrlHandle,
-                AuthorImageUrl = author.AuthorImageUrl
+                AuthorImageUrl = author.AuthorImageUrl,
+                Description = author.Description
             });
         }
 
@@ -71,9 +71,27 @@ public class AuthorsController : Controller
         var response = new AuthorDto
         {
             Id = existingAuthor.Id,
-            Name = existingAuthor.Name,
+            FullName = existingAuthor.FullName,
             UrlHandle = existingAuthor.UrlHandle,
-            AuthorImageUrl = existingAuthor.AuthorImageUrl
+            AuthorImageUrl = existingAuthor.AuthorImageUrl,
+            Description = existingAuthor.Description
+        };
+        return Ok(response);
+    }
+    
+    [HttpGet("{name}")]
+    public async Task<IActionResult> GetAuthorByName(string name)
+    {
+        var existingAuthor = await _authorRepository.GetByName(name);
+        if (existingAuthor is null)
+            return NotFound();
+        var response = new AuthorDto
+        {
+            Id = existingAuthor.Id,
+            FullName = existingAuthor.FullName,
+            UrlHandle = existingAuthor.UrlHandle,
+            AuthorImageUrl = existingAuthor.AuthorImageUrl,
+            Description = existingAuthor.Description
         };
         return Ok(response);
     }
@@ -86,9 +104,10 @@ public class AuthorsController : Controller
         var author = new Author
         {
             Id = id,
-            Name = request.Name,
+            FullName = request.FullName,
             UrlHandle = request.UrlHandle,
-            AuthorImageUrl = request.AuthorImageUrl
+            AuthorImageUrl = request.AuthorImageUrl,
+            Description = request.Description
         };
         author = await _authorRepository.UpdateAsync(author);
         
@@ -97,12 +116,13 @@ public class AuthorsController : Controller
             return NotFound();
         }
 
-        var response = new Author
+        var response = new AuthorDto()
         {
             Id = author.Id,
-            Name = author.Name,
+            FullName = author.FullName,
             UrlHandle = author.UrlHandle,
-            AuthorImageUrl = author.AuthorImageUrl
+            AuthorImageUrl = author.AuthorImageUrl,
+            Description = author.Description
         };
         return Ok(response);
     }
@@ -120,9 +140,10 @@ public class AuthorsController : Controller
         var response = new AuthorDto
         {
             Id = author.Id,
-            Name = author.Name,
+            FullName = author.FullName,
             UrlHandle = author.UrlHandle,
-            AuthorImageUrl = author.AuthorImageUrl
+            AuthorImageUrl = author.AuthorImageUrl,
+            Description = author.Description
         };
 
         return Ok(response);

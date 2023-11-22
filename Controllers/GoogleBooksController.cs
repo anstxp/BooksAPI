@@ -21,6 +21,5 @@ public class GoogleBooksController : Controller
         if (books.Any())
             return Ok(books);
         return NotFound();
-        
     }
 }

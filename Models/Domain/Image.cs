@@ -10,7 +10,6 @@ public class Image
     public IFormFile File { get; set; }
     [Required]
     public string Name { get; set; }
-    public string? Description { get; set; }
     public string FileExtension { get; set; }
     public long FileSizeInBytes { get; set; }
     public string FilePath { get; set; }

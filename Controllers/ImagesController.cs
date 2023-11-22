@@ -24,14 +24,15 @@ public class ImagesController : Controller
         
         if (ModelState.IsValid)
         {
+            DateTime now = DateTime.Now;
+            string name = request.File.FileName;
              //DTO to Domain Model
              var imageDomainModel = new Image
              {
                  File = request.File,
                  FileExtension = Path.GetExtension(request.File.FileName),
                  FileSizeInBytes = request.File.Length,
-                 Name = request.Name,
-                 Description = request.FileDescription
+                 Name = $"{name}_{now.ToString("yyyyMMdd_HHmmss")}",
              };
 
              await _imageRepository.Upload(imageDomainModel);
@@ -43,7 +44,7 @@ public class ImagesController : Controller
 
     private void ValidateFileUpload(UploadImageDto request)
     {
-        var allowedExtensions = new string[] { ".jpg", ".jpeg", ".png" };
+        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
         if (!allowedExtensions.Contains(Path.GetExtension(request.File.FileName)))
         {
             ModelState.AddModelError("file", "Unsupported file extension");
@@ -53,7 +54,6 @@ public class ImagesController : Controller
         {
             ModelState.AddModelError("file", 
                 "File size more than 10MB, please upload a smaller size file");
-
         }
     }
 }

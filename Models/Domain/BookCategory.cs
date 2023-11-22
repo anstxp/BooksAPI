@@ -8,9 +8,9 @@ public class BookCategory
     public Guid Id { get; set; }
     [Required]
     public string Name { get; set; }
+    public string? Description { get; set; }
     [Required]
     public string UrlHandle { get; set; }
-    public string? CategoryImageUrl { get; set; }
     [ForeignKey("BookId")]
     public ICollection<Book> Books { get; set; }
 }

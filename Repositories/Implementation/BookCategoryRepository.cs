@@ -32,26 +32,30 @@ public class BookCategoryRepository : IBookCategoryRepository
         return await _dbContext.BookCategories.FirstOrDefaultAsync(x => x.Id == id);
     }
 
+    public async Task<BookCategory?> GetByName(string name)
+    {
+        return await _dbContext.BookCategories.
+            FirstOrDefaultAsync(x => x.Name.ToLower() == name.ToLower());
+    }
+
     public async Task<BookCategory?> UpdateAsync(BookCategory bookCategory)
     {
-        var existingCategory = await _dbContext.BookCategories.FirstOrDefaultAsync(x => x.Id == bookCategory.Id);
-        if (existingCategory != null)
-        {
-            _dbContext.Entry(existingCategory).CurrentValues.SetValues(bookCategory);
-            await _dbContext.SaveChangesAsync();
-            return bookCategory;
-        }
+        var existingCategory = await _dbContext.BookCategories
+            .FirstOrDefaultAsync(x => x.Id == bookCategory.Id);
+        
+        if (existingCategory == null) return null;
+        
+        _dbContext.Entry(existingCategory).CurrentValues.SetValues(bookCategory);
+        await _dbContext.SaveChangesAsync();
+        return bookCategory;
 
-        return null;
     }
     
     public async Task<BookCategory?> DeleteAsync(Guid id)
     {
         var existingCategory = await _dbContext.BookCategories.FirstOrDefaultAsync(x => x.Id == id);
-        if (existingCategory is null)
-        {
-            return null;
-        }
+        
+        if (existingCategory is null) return null;
 
         _dbContext.BookCategories.Remove(existingCategory);
         await _dbContext.SaveChangesAsync();

@@ -1,5 +1,5 @@
+
 using BooksAPI.Models.Domain;
-using BooksAPI.Models.DTO;
 using BooksAPI.Models.DTO.BookCategoryDto;
 using BooksAPI.Repositories.Interface;
 using Microsoft.AspNetCore.Mvc;
@@ -11,10 +11,13 @@ namespace BooksAPI.Controllers;
 public class BookCategoriesController : Controller
 {
     private readonly IBookCategoryRepository _bookCategoryRepository;
-    
-    public BookCategoriesController(IBookCategoryRepository bookCategoryRepository)
+    private readonly ILogger<BookCategoriesController> _logger;
+
+    public BookCategoriesController(IBookCategoryRepository bookCategoryRepository,
+        ILogger<BookCategoriesController> logger)
     {
         _bookCategoryRepository = bookCategoryRepository;
+        _logger = logger;
     }
     
     [HttpPost]
@@ -25,7 +28,7 @@ public class BookCategoriesController : Controller
         {
             Name = request.Name,
             UrlHandle = request.UrlHandle,
-            CategoryImageUrl = request.CategoryImageUrl
+            Description = request.Description
         };
 
         await _bookCategoryRepository.CreateAsync(bookCategory);
@@ -36,7 +39,7 @@ public class BookCategoriesController : Controller
             Id = bookCategory.Id,
             Name = bookCategory.Name,
             UrlHandle = bookCategory.UrlHandle,
-            CategoryImageUrl = bookCategory.CategoryImageUrl
+            Description = bookCategory.Description
         };
         return Ok(response);
     }
@@ -44,6 +47,8 @@ public class BookCategoriesController : Controller
     [HttpGet]
     public async Task<IActionResult> GetAllBookCategories()
     {
+        _logger.LogInformation("GetAllBookCategories Action Method was invoked");
+        
         var bookCategories = await _bookCategoryRepository.GetAllAsync();
         //Domain model to DTO
         var response = new List<BookCategoryDto>();
@@ -54,7 +59,7 @@ public class BookCategoriesController : Controller
                 Id = bookCategory.Id,
                 Name = bookCategory.Name,
                 UrlHandle = bookCategory.UrlHandle,
-                CategoryImageUrl = bookCategory.CategoryImageUrl
+                Description = bookCategory.Description!
             });
         }
 
@@ -73,7 +78,23 @@ public class BookCategoriesController : Controller
             Id = existingCategory.Id,
             Name = existingCategory.Name,
             UrlHandle = existingCategory.UrlHandle,
-            CategoryImageUrl = existingCategory.CategoryImageUrl
+            Description = existingCategory.Description!
+        };
+        return Ok(response);
+    }
+    
+    [HttpGet("{name}")]
+    public async Task<IActionResult> GetBookCategoryByName(string name)
+    {
+        var existingCategory = await _bookCategoryRepository.GetByName(name);
+        if (existingCategory is null)
+            return NotFound();
+        var response = new BookCategoryDto
+        {
+            Id = existingCategory.Id,
+            Name = existingCategory.Name,
+            UrlHandle = existingCategory.UrlHandle,
+            Description = existingCategory.Description!
         };
         return Ok(response);
     }
@@ -88,7 +109,7 @@ public class BookCategoriesController : Controller
             Id = id,
             Name = request.Name,
             UrlHandle = request.UrlHandle,
-            CategoryImageUrl = request.CategoryImageUrl
+            Description = request.Description
         };
         bookCategory = await _bookCategoryRepository.UpdateAsync(bookCategory);
         
@@ -102,7 +123,7 @@ public class BookCategoriesController : Controller
             Id = bookCategory.Id,
             Name = bookCategory.Name,
             UrlHandle = bookCategory.UrlHandle,
-            CategoryImageUrl = bookCategory.CategoryImageUrl
+            Description = bookCategory.Description!
         };
         return Ok(response);
     }
@@ -122,7 +143,7 @@ public class BookCategoriesController : Controller
             Id = bookCategory.Id,
             Name = bookCategory.Name,
             UrlHandle = bookCategory.UrlHandle,
-            CategoryImageUrl = bookCategory.CategoryImageUrl
+            Description = bookCategory.Description!
         };
 
         return Ok(response);

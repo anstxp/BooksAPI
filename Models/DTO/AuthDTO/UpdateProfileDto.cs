@@ -19,7 +19,5 @@ public class UpdateProfileDto
     public DateTime Birthdate { get; set; }
     public string Gender { get; set; }
     public string Genre { get; set; }
-    [DataType(DataType.Password)]
-    public string Password { get; set; }
     public string ProfilePhotoUrl { get; set; }
 }
