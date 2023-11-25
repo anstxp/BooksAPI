@@ -24,7 +24,9 @@ public class AuthorRepository : IAuthorRepository
     public async Task<IEnumerable<Author>> GetAllAsync(string? sortBy = null, bool isAscending = true, 
         int pageNumber = 1, int pageSize = 1000)
     {
-        var authors = _dbContext.Authors.AsQueryable();
+        var authors = _dbContext.Authors
+            .Include(x => x.Books)
+            .AsQueryable();
         
         //Sorting
         if (string.IsNullOrWhiteSpace(sortBy) == false)
@@ -43,12 +45,16 @@ public class AuthorRepository : IAuthorRepository
 
     public async Task<Author?> GetById(Guid id)
     {
-        return await _dbContext.Authors.FirstOrDefaultAsync(x => x.Id == id);
+        return await _dbContext.Authors
+            .Include(x => x.Books)
+            .FirstOrDefaultAsync(x => x.Id == id);
     }
 
     public async Task<Author?> GetByName(string name)
     {
-        return await _dbContext.Authors.FirstOrDefaultAsync(x => x.FullName.ToLower() == name.ToLower());
+        return await _dbContext.Authors
+            .Include(x => x.Books)
+            .FirstOrDefaultAsync(x => x.FullName.ToLower() == name.ToLower());
     }
 
     public async Task<Author?> UpdateAsync(Author author)

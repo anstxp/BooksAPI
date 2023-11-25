@@ -17,13 +17,12 @@ public class Book
     [Required]
     public string ImageUrl { get; set; }
     [Required]
-    public string UrlHadle { get; set; }
+    public string UrlHandle { get; set; }
     [Required]
     public int Price { get; set; }
-    [ForeignKey("CategoryId")]
+    [ForeignKey("BookId")]
     public ICollection<BookCategory> Categories { get; set; }
-    [ForeignKey("AuthorId")]
     public ICollection<Author> Authors { get; set; }
-    [ForeignKey("BlogPostId")]
     public ICollection<BlogPost> BlogPosts { get; set; }
+    public ICollection<Comment> Comments { get; set; }
 }

@@ -10,7 +10,5 @@ public class Delivery
     public string City { get; set; }
     [Required]
     public string Address { get; set; }
-    [Required]
-    [ForeignKey("DeliveryTypeId")]
     public DeliveryType DeliveryType { get; set; }
 }

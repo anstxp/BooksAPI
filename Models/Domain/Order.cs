@@ -6,16 +6,13 @@ namespace BooksAPI.Models.Domain;
 public class Order
 {
     public Guid Id { get; set; }
-    [Required] 
-    [ForeignKey("UserId")] 
+    [Required]
+    public Guid UserId { get; set; }
     public User User { get; set; }
-    [Required] 
-    [ForeignKey("ItemId")] 
     public ICollection<OrderItem> OrderItems { get; set; }
-    [Required] 
+    [Required]
     public DateTime OrderDate { get; set; }
-    [Required] 
-    [ForeignKey("Delivery")] 
+    [Required]
     public Delivery Delivery { get; set; }
     public decimal Total
     {

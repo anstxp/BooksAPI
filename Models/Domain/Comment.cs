@@ -1,12 +1,14 @@
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Runtime.InteropServices.JavaScript;
 
 namespace BooksAPI.Models.Domain;
 
-public class ShoppingCartItem
+public class Comment
 {
     public Guid Id { get; set; }
-    public Book Book { get; set; }
-    public int Quantity { get; set; }
+    public string Content { get; set; }
     public DateTime Date { get; set; }
+    public User User { get; set; }
+    [ForeignKey("BookId")]
+    public Book Book { get; set; }
+
 }

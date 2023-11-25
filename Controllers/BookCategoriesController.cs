@@ -1,6 +1,7 @@
 
 using BooksAPI.Models.Domain;
 using BooksAPI.Models.DTO.BookCategoryDto;
+using BooksAPI.Models.DTO.BookDTO;
 using BooksAPI.Repositories.Interface;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,12 +13,14 @@ public class BookCategoriesController : Controller
 {
     private readonly IBookCategoryRepository _bookCategoryRepository;
     private readonly ILogger<BookCategoriesController> _logger;
+    private readonly IBookRepository _bookRepository;
 
     public BookCategoriesController(IBookCategoryRepository bookCategoryRepository,
-        ILogger<BookCategoriesController> logger)
+        ILogger<BookCategoriesController> logger, IBookRepository bookRepository)
     {
         _bookCategoryRepository = bookCategoryRepository;
         _logger = logger;
+        _bookRepository = bookRepository;
     }
     
     [HttpPost]
@@ -59,7 +62,14 @@ public class BookCategoriesController : Controller
                 Id = bookCategory.Id,
                 Name = bookCategory.Name,
                 UrlHandle = bookCategory.UrlHandle,
-                Description = bookCategory.Description!
+                Description = bookCategory.Description!,
+                Books = bookCategory.Books.Select(x => new BookDto
+                {
+                    Id = x.Id,
+                    Title = x.Title,
+                    Price = x.Price,
+                    Description = x.Description!
+                }).ToList()
             });
         }
 
@@ -78,7 +88,14 @@ public class BookCategoriesController : Controller
             Id = existingCategory.Id,
             Name = existingCategory.Name,
             UrlHandle = existingCategory.UrlHandle,
-            Description = existingCategory.Description!
+            Description = existingCategory.Description!,
+            Books = existingCategory.Books.Select(x => new BookDto
+            {
+                Id = x.Id,
+                Title = x.Title,
+                Price = x.Price,
+                Description = x.Description!
+            }).ToList()
         };
         return Ok(response);
     }
@@ -94,7 +111,14 @@ public class BookCategoriesController : Controller
             Id = existingCategory.Id,
             Name = existingCategory.Name,
             UrlHandle = existingCategory.UrlHandle,
-            Description = existingCategory.Description!
+            Description = existingCategory.Description!,
+            Books = existingCategory.Books.Select(x => new BookDto
+            {
+                Id = x.Id,
+                Title = x.Title,
+                Price = x.Price,
+                Description = x.Description!
+            }).ToList()
         };
         return Ok(response);
     }
@@ -109,8 +133,19 @@ public class BookCategoriesController : Controller
             Id = id,
             Name = request.Name,
             UrlHandle = request.UrlHandle,
-            Description = request.Description
+            Description = request.Description,
+            Books = new List<Book>()
         };
+        
+        foreach (var bookGuid in request.Books)
+        {
+            var existingBook = await _bookRepository.GetById(bookGuid);
+            if (existingBook != null)
+            {
+                bookCategory.Books.Add(existingBook);
+            }
+        }
+        
         bookCategory = await _bookCategoryRepository.UpdateAsync(bookCategory);
         
         if (bookCategory == null)
@@ -123,7 +158,14 @@ public class BookCategoriesController : Controller
             Id = bookCategory.Id,
             Name = bookCategory.Name,
             UrlHandle = bookCategory.UrlHandle,
-            Description = bookCategory.Description!
+            Description = bookCategory.Description!,
+            Books = bookCategory.Books.Select(x => new BookDto
+            {
+                Id = x.Id,
+                Title = x.Title,
+                Price = x.Price,
+                Description = x.Description!
+            }).ToList()
         };
         return Ok(response);
     }
@@ -143,7 +185,7 @@ public class BookCategoriesController : Controller
             Id = bookCategory.Id,
             Name = bookCategory.Name,
             UrlHandle = bookCategory.UrlHandle,
-            Description = bookCategory.Description!
+            Description = bookCategory.Description!,
         };
 
         return Ok(response);

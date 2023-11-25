@@ -1,5 +1,7 @@
+using System.IO.Compression;
 using BooksAPI.Models.Domain;
 using BooksAPI.Models.DTO.AuthorDto;
+using BooksAPI.Models.DTO.BookDTO;
 using BooksAPI.Repositories.Interface;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,10 +12,12 @@ namespace BooksAPI.Controllers;
 public class AuthorsController : Controller
 {
     private readonly IAuthorRepository _authorRepository;
+    private readonly IBookRepository _bookRepository;
     
-    public AuthorsController(IAuthorRepository authorRepository)
+    public AuthorsController(IAuthorRepository authorRepository, IBookRepository bookRepository)
     {
         _authorRepository = authorRepository;
+        _bookRepository = bookRepository;
     }
     
     [HttpPost]
@@ -24,6 +28,7 @@ public class AuthorsController : Controller
         {
             FullName = request.FullName,
             UrlHandle = request.UrlHandle, 
+            Description = request.Description,
             AuthorImageUrl = request.AuthorImageUrl
         };
 
@@ -35,6 +40,7 @@ public class AuthorsController : Controller
             Id = author.Id,
             FullName = author.FullName,
             UrlHandle = author.UrlHandle,
+            Description = author.Description,
             AuthorImageUrl = author.AuthorImageUrl
         };
         return Ok(response);
@@ -54,7 +60,14 @@ public class AuthorsController : Controller
                 FullName = author.FullName,
                 UrlHandle = author.UrlHandle,
                 AuthorImageUrl = author.AuthorImageUrl,
-                Description = author.Description
+                Description = author.Description,
+                Books = author.Books.Select(x => new BookDto
+                {
+                    Id = x.Id,
+                    Title = x.Title,
+                    Price = x.Price,
+                    Description = x.Description!
+                }).ToList()
             });
         }
 
@@ -74,7 +87,14 @@ public class AuthorsController : Controller
             FullName = existingAuthor.FullName,
             UrlHandle = existingAuthor.UrlHandle,
             AuthorImageUrl = existingAuthor.AuthorImageUrl,
-            Description = existingAuthor.Description
+            Description = existingAuthor.Description,
+            Books = existingAuthor.Books.Select(x => new BookDto
+            {
+                Id = x.Id,
+                Title = x.Title,
+                Price = x.Price,
+                Description = x.Description!
+            }).ToList()
         };
         return Ok(response);
     }
@@ -91,7 +111,14 @@ public class AuthorsController : Controller
             FullName = existingAuthor.FullName,
             UrlHandle = existingAuthor.UrlHandle,
             AuthorImageUrl = existingAuthor.AuthorImageUrl,
-            Description = existingAuthor.Description
+            Description = existingAuthor.Description,
+            Books = existingAuthor.Books.Select(x => new BookDto
+            {
+                Id = x.Id,
+                Title = x.Title,
+                Price = x.Price,
+                Description = x.Description!
+            }).ToList()
         };
         return Ok(response);
     }
@@ -107,8 +134,19 @@ public class AuthorsController : Controller
             FullName = request.FullName,
             UrlHandle = request.UrlHandle,
             AuthorImageUrl = request.AuthorImageUrl,
-            Description = request.Description
+            Description = request.Description,
+            Books = new List<Book>()
         };
+        
+        foreach (var bookGuid in request.Books)
+        {
+            var existingBook = await _bookRepository.GetById(bookGuid);
+            if (existingBook != null)
+            {
+                author.Books.Add(existingBook);
+            }
+        }
+        
         author = await _authorRepository.UpdateAsync(author);
         
         if (author == null)
@@ -122,7 +160,14 @@ public class AuthorsController : Controller
             FullName = author.FullName,
             UrlHandle = author.UrlHandle,
             AuthorImageUrl = author.AuthorImageUrl,
-            Description = author.Description
+            Description = author.Description,
+            Books = author.Books.Select(x => new BookDto
+            {
+                Id = x.Id,
+                Title = x.Title,
+                Price = x.Price,
+                Description = x.Description!
+            }).ToList()
         };
         return Ok(response);
     }

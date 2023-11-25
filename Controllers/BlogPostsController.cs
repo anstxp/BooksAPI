@@ -80,7 +80,7 @@ public class BlogPostsController : Controller
                     Id = x.Id,
                     Title = x.Title,
                     Description = x.Description,
-                    UrlHadle = x.UrlHadle,
+                    UrlHadle = x.UrlHandle,
                     Categories = x.Categories.Select(category => new BookCategoryDto
                     {
                         Id = category.Id,
@@ -139,7 +139,7 @@ public class BlogPostsController : Controller
                     Id = x.Id,
                     Title = x.Title,
                     Description = x.Description,
-                    UrlHadle = x.UrlHadle,
+                    UrlHadle = x.UrlHandle,
                     Authors = x.Authors.Select(author => new AuthorDto
                     {
                         Id = author.Id,
@@ -192,7 +192,7 @@ public class BlogPostsController : Controller
                 Id = x.Id,
                 Title = x.Title,
                 Description = x.Description,
-                UrlHadle = x.UrlHadle,
+                UrlHadle = x.UrlHandle,
                 Authors = x.Authors.Select(author => new AuthorDto
                 {
                     Id = author.Id,
@@ -254,13 +254,14 @@ public class BlogPostsController : Controller
                 Id = x.Id,
                 Title = x.Title,
                 Description = x.Description,
-                UrlHadle = x.UrlHadle,
+                UrlHadle = x.UrlHandle,
                 Authors = x.Authors.Select(author => new AuthorDto
                 {
                     Id = author.Id,
                     FullName = author.FullName,
                     Description = author.Description!,
-                    UrlHandle = author.UrlHandle
+                    UrlHandle = author.UrlHandle,
+                    AuthorImageUrl = author.AuthorImageUrl
                 }).ToList(),
                 Categories = x.Categories.Select(category => new BookCategoryDto
                 {

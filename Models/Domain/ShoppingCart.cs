@@ -6,11 +6,9 @@ namespace BooksAPI.Models.Domain;
 public class ShoppingCart
 {
     public Guid Id { get; set; }
-    [ForeignKey("Item")]
-    [Required]
     public ICollection<ShoppingCartItem> Items { get; set; }
-    [ForeignKey("User")]
     [Required]
+    public Guid UserId { get; set; }
     public User User { get; set; }
     public decimal Total
     {

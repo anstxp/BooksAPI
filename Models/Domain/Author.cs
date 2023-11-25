@@ -12,5 +12,6 @@ public class Author
     public string? Description { get; set; }
     [Required]
     public string UrlHandle { get; set; }
+    [ForeignKey("AuthorId")]
     public ICollection<Book> Books { get; set; }
 }

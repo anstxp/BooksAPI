@@ -26,6 +26,8 @@ public class BookRepository : IBookRepository
         var books = _dbContext.Books.
             Include(x => x.Categories)
             .Include(x => x.Authors)
+            .Include(x => x.Comments)
+            .ThenInclude(comment => comment.User)
             .AsQueryable();
         
         //Filtering
@@ -60,6 +62,7 @@ public class BookRepository : IBookRepository
     {
         return await _dbContext.Books.Include(x=>x.Categories).
             Include(x=>x.Authors)
+            .Include(x => x.Comments)
             .FirstOrDefaultAsync(x => x.Id == id);
     }
 
@@ -67,13 +70,15 @@ public class BookRepository : IBookRepository
     {
         return await _dbContext.Books.Include(x=>x.Categories)
             .Include(x=>x.Authors)
+            .Include(x => x.Comments)
             .FirstOrDefaultAsync(x => x.Title.ToLower() == title.ToLower());
     }
 
     public async Task<Book?> UpdateAsync(Book book)
     {
         var existingBook = await _dbContext.Books.Include(x=>x.Categories).
-            Include(x=>x.Authors).FirstOrDefaultAsync(x => x.Id == book.Id);
+            Include(x=>x.Authors)
+            .FirstOrDefaultAsync(x => x.Id == book.Id);
         
         if (existingBook == null) return null;
         

@@ -12,10 +12,8 @@ public class BlogPost
     public string Content { get; set; }
     public string ImageUrl { get; set; }
     public DateTime PublishDate { get; set; }
-    [ForeignKey("UserId")]
     public User User { get; set; }
     public bool IsVisible { get; set; }
-    [ForeignKey("UserId")]
     public ICollection<Book>? Books { get; set; }
     
 }

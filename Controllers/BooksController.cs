@@ -4,6 +4,7 @@ using BooksAPI.Models.DTO.AuthDTO;
 using BooksAPI.Models.DTO.AuthorDto;
 using BooksAPI.Models.DTO.BookCategoryDto;
 using BooksAPI.Models.DTO.BookDTO;
+using BooksAPI.Models.DTO.CommentDTO;
 using BooksAPI.Repositories.Interface;
 using Microsoft.AspNetCore.Mvc;
 
@@ -35,10 +36,11 @@ public class BooksController : Controller
             ISBN = request.ISBN,
             PageCount = request.PageCount,
             ImageUrl = request.ImageUrl,
-            UrlHadle = request.UrlHadle, 
+            UrlHandle = request.UrlHadle, 
             Price = request.Price,
             Categories = new List<BookCategory>(),
             Authors = new List<Author>(),
+            Comments = new List<Comment>(),
         };
 
         foreach (var categoryGuid in request.Categories)
@@ -64,13 +66,14 @@ public class BooksController : Controller
             ISBN = book.ISBN,
             PageCount = book.PageCount,
             ImageUrl = book.ImageUrl,
-            UrlHadle = book.UrlHadle, 
+            UrlHadle = book.UrlHandle, 
             Price = book.Price,
             Categories = book.Categories.Select(x => new BookCategoryDto
             {
                 Id = x.Id,
                 Name = x.Name,
-                UrlHandle = x.UrlHandle
+                UrlHandle = x.UrlHandle,
+                Description = x.Description!
             }).ToList(),
             Authors = book.Authors.Select(x => new AuthorDto
             {
@@ -79,6 +82,17 @@ public class BooksController : Controller
                 UrlHandle = x.UrlHandle,
                 AuthorImageUrl = x.AuthorImageUrl,
                 Description = x.Description
+            }).ToList(),
+            Comments = book.Comments.Select(x => new CommentDto
+            {
+                Id = x.Id,
+                Content = x.Content,
+                Date = x.Date,
+                User = new UserDto()
+                {
+                    Id = x.User.Id,
+                    UserName = x.User.UserName!
+                }
             }).ToList()
         };
         return Ok(response);
@@ -104,7 +118,7 @@ public class BooksController : Controller
                 ISBN = book.ISBN,
                 PageCount = book.PageCount,
                 ImageUrl = book.ImageUrl,
-                UrlHadle = book.UrlHadle, 
+                UrlHadle = book.UrlHandle, 
                 Price = book.Price,
                 Categories = book.Categories.Select(x => new BookCategoryDto
                 {
@@ -121,6 +135,17 @@ public class BooksController : Controller
                     AuthorImageUrl = x.AuthorImageUrl,
                     Description = x.Description
                 }).ToList(),
+                Comments = book.Comments.Select(x => new CommentDto
+                {
+                    Id = x.Id,
+                    Content = x.Content,
+                    User = new UserDto()
+                    {
+                        Id = x.User.Id,
+                        UserName = x.User.UserName!,
+                        Email = x.User.Email!,
+                    }
+                }).ToList()
             });
         }
         return Ok(response);
@@ -141,7 +166,7 @@ public class BooksController : Controller
             ISBN = existingBook.ISBN,
             PageCount = existingBook.PageCount,
             ImageUrl = existingBook.ImageUrl,
-            UrlHadle = existingBook.UrlHadle, 
+            UrlHadle = existingBook.UrlHandle, 
             Price = existingBook.Price,
             Categories = existingBook.Categories.Select(x => new BookCategoryDto
             {
@@ -158,6 +183,17 @@ public class BooksController : Controller
                 AuthorImageUrl = x.AuthorImageUrl,
                 Description = x.Description
             }).ToList(),
+            Comments = existingBook.Comments.Select(x => new CommentDto
+            {
+                Id = x.Id,
+                Content = x.Content,
+                User = new UserDto()
+                {
+                    Id = x.User.Id,
+                    UserName = x.User.UserName!,
+                    Email = x.User.Email!,
+                }
+            }).ToList()
 
         };
         return Ok(response);
@@ -176,10 +212,10 @@ public class BooksController : Controller
             ISBN = request.ISBN,
             PageCount = request.PageCount,
             ImageUrl = request.ImageUrl,
-            UrlHadle = request.UrlHadle, 
+            UrlHandle = request.UrlHadle, 
             Price = request.Price,
             Categories = new List<BookCategory>(),
-            Authors = new List<Author>()
+            Authors = new List<Author>(),
         };
 
         foreach (var categoryGuid in request.Categories)
@@ -214,7 +250,7 @@ public class BooksController : Controller
             ISBN = book.ISBN,
             PageCount = book.PageCount,
             ImageUrl = book.ImageUrl,
-            UrlHadle = book.UrlHadle, 
+            UrlHadle = book.UrlHandle, 
             Price = book.Price,
             Categories = book.Categories.Select(x => new BookCategoryDto
             {
@@ -230,7 +266,7 @@ public class BooksController : Controller
                 UrlHandle = x.UrlHandle,
                 AuthorImageUrl = x.AuthorImageUrl,
                 Description = x.Description
-            }).ToList()
+            }).ToList(),
         };
         return Ok(response);
     }
@@ -253,7 +289,7 @@ public class BooksController : Controller
             ISBN = book.ISBN,
             PageCount = book.PageCount,
             ImageUrl = book.ImageUrl,
-            UrlHadle = book.UrlHadle, 
+            UrlHadle = book.UrlHandle, 
             Price = book.Price,
         };
         
@@ -274,7 +310,7 @@ public class BooksController : Controller
             ISBN = existingBook.ISBN,
             PageCount = existingBook.PageCount,
             ImageUrl = existingBook.ImageUrl,
-            UrlHadle = existingBook.UrlHadle, 
+            UrlHadle = existingBook.UrlHandle, 
             Price = existingBook.Price,
             Categories = existingBook.Categories.Select(x => new BookCategoryDto
             {
@@ -291,6 +327,17 @@ public class BooksController : Controller
                 AuthorImageUrl = x.AuthorImageUrl,
                 Description = x.Description
             }).ToList(),
+            Comments = existingBook.Comments.Select(x => new CommentDto
+            {
+                Id = x.Id,
+                Content = x.Content,
+                User = new UserDto()
+                {
+                    Id = x.User.Id,
+                    UserName = x.User.UserName!,
+                    Email = x.User.Email!,
+                }
+            }).ToList()
             
         };
         return Ok(response);

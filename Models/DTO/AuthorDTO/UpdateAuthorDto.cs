@@ -8,4 +8,5 @@ public class UpdateAuthorDto
     public string? AuthorImageUrl { get; set; }
     public string? Description { get; set; }
     public string UrlHandle { get; set; }
+    public List<Guid> Books { get; set; } = new List<Guid>();
 }

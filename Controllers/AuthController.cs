@@ -96,7 +96,21 @@ public class AuthController : Controller
         }
         return BadRequest("Something went wrong");
     }
-
+    
+    // [Authorize]
+    // [HttpPut("EditUser")]
+    // public async Task<IActionResult> PatchUser(UpdateProfileDto userModel)
+    // {
+    //     User user = (await _userManager.GetUserAsync(User) as User);
+    //     if (user != null)
+    //     { 
+    //         user.UpdateFromUserModel(userModel); // update all fields except password
+    //             
+    //         await _userManager.UpdateAsync(user);
+    //         return Ok();
+    //     }
+    //     return BadRequest();
+    // }
 
     [HttpDelete]
     [Route("DeleteAccount/{userId}")]
@@ -112,6 +126,23 @@ public class AuthController : Controller
         {
             return BadRequest("Failed to delete account.");
         }
+    }
+    
+    [HttpGet("GetRole")]
+    public async Task<IActionResult> GetUserRole()
+    {
+        var claimsPrincipal = User;
+        if (claimsPrincipal != null)
+        {
+            var identityUser = await _userManager.GetUserAsync(User);
+            if (identityUser != null)
+            {
+                var roles = await _userManager.GetRolesAsync(identityUser);
+                var role = roles.FirstOrDefault();
+                return Ok(role);
+            }
+        }
+        return NotFound();
     }
     
     [HttpPatch]

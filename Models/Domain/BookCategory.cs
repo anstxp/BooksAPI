@@ -11,6 +11,6 @@ public class BookCategory
     public string? Description { get; set; }
     [Required]
     public string UrlHandle { get; set; }
-    [ForeignKey("BookId")]
+    [ForeignKey("CategoryId")]
     public ICollection<Book> Books { get; set; }
 }

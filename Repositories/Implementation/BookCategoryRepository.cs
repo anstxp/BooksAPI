@@ -24,23 +24,29 @@ public class BookCategoryRepository : IBookCategoryRepository
 
     public async Task<IEnumerable<BookCategory>> GetAllAsync()
     {
-        return await _dbContext.BookCategories.ToListAsync();
+        return await _dbContext.BookCategories
+            .Include(x => x.Books)
+            .ToListAsync();
     }
 
     public async Task<BookCategory?> GetById(Guid id)
     {
-        return await _dbContext.BookCategories.FirstOrDefaultAsync(x => x.Id == id);
+        return await _dbContext.BookCategories
+            .Include(x => x.Books)
+            .FirstOrDefaultAsync(x => x.Id == id);
     }
 
     public async Task<BookCategory?> GetByName(string name)
     {
-        return await _dbContext.BookCategories.
-            FirstOrDefaultAsync(x => x.Name.ToLower() == name.ToLower());
+        return await _dbContext.BookCategories
+            .Include(x => x.Books)
+            .FirstOrDefaultAsync(x => x.Name.ToLower() == name.ToLower());
     }
 
     public async Task<BookCategory?> UpdateAsync(BookCategory bookCategory)
     {
         var existingCategory = await _dbContext.BookCategories
+            .Include(x => x.Books)
             .FirstOrDefaultAsync(x => x.Id == bookCategory.Id);
         
         if (existingCategory == null) return null;

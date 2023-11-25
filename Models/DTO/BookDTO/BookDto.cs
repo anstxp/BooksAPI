@@ -1,4 +1,7 @@
 
+using BooksAPI.Models.Domain;
+using BooksAPI.Models.DTO.CommentDTO;
+
 namespace BooksAPI.Models.DTO.BookDTO;
 
 public class BookDto
@@ -13,4 +16,5 @@ public class BookDto
     public int Price { get; set; }
     public List<BookCategoryDto.BookCategoryDto>? Categories { get; set; } = new ();
     public List<AuthorDto.AuthorDto>? Authors { get; set; } = new();
+    public List<CommentDto>? Comments { get; set; } = new();
 }

@@ -37,5 +37,4 @@ public class AuthDbContext : IdentityDbContext
         
         builder.Entity<IdentityRole>().HasData(roles);
     }
-    
 }
