@@ -8,7 +8,7 @@ public class CommentDto
 {
     public Guid Id { get; set; }
     public string Content { get; set; }
-    public DateTime Date { get; set; }
+    public DateTime  PublishDate  { get; set; }
     public UserDto User { get; set; }
     public BookDto Book { get; set; }
 }

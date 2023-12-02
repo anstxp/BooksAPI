@@ -1,4 +1,5 @@
 using System.IO.Compression;
+using System.Runtime.Intrinsics.X86;
 using BooksAPI.Models.Domain;
 using BooksAPI.Models.DTO.AuthorDto;
 using BooksAPI.Models.DTO.BookDTO;
@@ -66,7 +67,10 @@ public class AuthorsController : Controller
                     Id = x.Id,
                     Title = x.Title,
                     Price = x.Price,
-                    Description = x.Description!
+                    Description = x.Description!,
+                    ImageUrl = x.ImageUrl,
+                    ISBN = x.ISBN,
+                    UrlHadle = x.UrlHandle,
                 }).ToList()
             });
         }
@@ -93,7 +97,10 @@ public class AuthorsController : Controller
                 Id = x.Id,
                 Title = x.Title,
                 Price = x.Price,
-                Description = x.Description!
+                Description = x.Description!,
+                ImageUrl = x.ImageUrl,
+                ISBN = x.ISBN,
+                UrlHadle = x.UrlHandle,
             }).ToList()
         };
         return Ok(response);
@@ -117,7 +124,10 @@ public class AuthorsController : Controller
                 Id = x.Id,
                 Title = x.Title,
                 Price = x.Price,
-                Description = x.Description!
+                Description = x.Description!,
+                ImageUrl = x.ImageUrl,
+                ISBN = x.ISBN,
+                UrlHadle = x.UrlHandle,
             }).ToList()
         };
         return Ok(response);
@@ -166,7 +176,10 @@ public class AuthorsController : Controller
                 Id = x.Id,
                 Title = x.Title,
                 Price = x.Price,
-                Description = x.Description!
+                Description = x.Description!,
+                ImageUrl = x.ImageUrl,
+                ISBN = x.ISBN,
+                UrlHadle = x.UrlHandle,
             }).ToList()
         };
         return Ok(response);
@@ -188,7 +201,7 @@ public class AuthorsController : Controller
             FullName = author.FullName,
             UrlHandle = author.UrlHandle,
             AuthorImageUrl = author.AuthorImageUrl,
-            Description = author.Description
+            Description = author.Description,
         };
 
         return Ok(response);

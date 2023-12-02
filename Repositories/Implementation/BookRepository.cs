@@ -23,9 +23,10 @@ public class BookRepository : IBookRepository
     public async Task<IEnumerable<Book>> GetAllAsync(string? filterOn = null, string? filterQuery = null,
         string? sortBy = null, bool isAscending = true, int pageNumber = 1, int pageSize = 1000)
     {
-        var books = _dbContext.Books.
-            Include(x => x.Categories)
+        var books = _dbContext.Books
+            .Include(x => x.Categories)
             .Include(x => x.Authors)
+            .Include(x => x.Collections)
             .Include(x => x.Comments)
             .ThenInclude(comment => comment.User)
             .AsQueryable();
@@ -41,6 +42,10 @@ public class BookRepository : IBookRepository
             {
                 books = books.Where(x => x.Authors.Any(c => c.FullName.Contains(filterQuery)));
             }
+            else if (filterOn.Equals("Collection", StringComparison.OrdinalIgnoreCase))
+            {
+                books = books.Where(x => x.Collections.Any(c => c.Name.Contains(filterQuery)));
+            }
         }
         
         //Sorting
@@ -49,6 +54,14 @@ public class BookRepository : IBookRepository
             if (sortBy.Equals("Title", StringComparison.OrdinalIgnoreCase))
             {
                 books = isAscending ? books.OrderBy(x => x.Title) : books.OrderByDescending(x => x.Title);
+            }
+            if (sortBy.Equals("Price", StringComparison.OrdinalIgnoreCase))
+            {
+                books = isAscending ? books.OrderBy(x => x.Price) : books.OrderByDescending(x => x.Price);
+            }
+            if (sortBy.Equals("PageCount", StringComparison.OrdinalIgnoreCase))
+            {
+                books = isAscending ? books.OrderBy(x => x.PageCount) : books.OrderByDescending(x => x.PageCount);
             }
         }
         
@@ -60,24 +73,21 @@ public class BookRepository : IBookRepository
 
     public async Task<Book?> GetById(Guid id)
     {
-        return await _dbContext.Books.Include(x=>x.Categories).
-            Include(x=>x.Authors)
+        return await _dbContext.Books
+            .Include(x => x.Categories)
+            .Include(x => x.Authors)
+            .Include(x => x.Collections)
             .Include(x => x.Comments)
+            .ThenInclude(comment => comment.User)
             .FirstOrDefaultAsync(x => x.Id == id);
-    }
-
-    public async Task<Book?> GetByTitle(string title)
-    {
-        return await _dbContext.Books.Include(x=>x.Categories)
-            .Include(x=>x.Authors)
-            .Include(x => x.Comments)
-            .FirstOrDefaultAsync(x => x.Title.ToLower() == title.ToLower());
     }
 
     public async Task<Book?> UpdateAsync(Book book)
     {
-        var existingBook = await _dbContext.Books.Include(x=>x.Categories).
-            Include(x=>x.Authors)
+        var existingBook = await _dbContext.Books
+            .Include(x => x.Collections)
+            .Include(x=>x.Categories)
+            .Include(x=>x.Authors)
             .FirstOrDefaultAsync(x => x.Id == book.Id);
         
         if (existingBook == null) return null;
@@ -99,5 +109,28 @@ public class BookRepository : IBookRepository
         _dbContext.Books.Remove(existingBook);
         await _dbContext.SaveChangesAsync();
         return existingBook;
+    }
+
+    public async Task<Book?> GetByUrl(string url)
+    {
+        return await _dbContext.Books
+            .Include(x=>x.Categories)
+            .Include(x=>x.Authors)
+            .Include(x => x.Collections)
+            .Include(x => x.Comments)
+            .ThenInclude(x=>x.User)
+            .FirstOrDefaultAsync(x => x.UrlHandle.ToLower() == url.ToLower());
+    }
+    
+    public async Task<IEnumerable<Book?>> SearchByTitle(string title)
+    { 
+        return await _dbContext.Books
+            .Include(x=>x.Categories)
+            .Include(x=>x.Authors)
+            .Include(x => x.Collections)
+            .Include(x => x.Comments)
+            .ThenInclude(x=>x.User)
+            .Where(book => EF.Functions.Like(book.Title, $"%{title}%"))
+            .ToListAsync();
     }
 }

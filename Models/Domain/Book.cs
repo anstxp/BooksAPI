@@ -22,6 +22,7 @@ public class Book
     public int Price { get; set; }
     [ForeignKey("BookId")]
     public ICollection<BookCategory> Categories { get; set; }
+    public ICollection<Collection> Collections { get; set; }
     public ICollection<Author> Authors { get; set; }
     public ICollection<BlogPost> BlogPosts { get; set; }
     public ICollection<Comment> Comments { get; set; }

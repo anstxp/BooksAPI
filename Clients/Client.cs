@@ -23,7 +23,6 @@ public class Client
         response.EnsureSuccessStatusCode();
         var content = await response.Content.ReadAsStringAsync();
         var books = JsonConvert.DeserializeObject<GoogleBooks>(content); 
-        return books.Items.ToList();
+        return books.Items.Take(5).ToList();
     }
-    
 }

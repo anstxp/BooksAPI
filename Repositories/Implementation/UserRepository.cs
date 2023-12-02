@@ -25,7 +25,6 @@ public class UserRepository : IUserRepository
     {
         return await _dbContext.Users.Include(x=>x.UserInfo)
             .FirstOrDefaultAsync(x => x.Id == id.ToString());
-        
     }
 
     public async Task<User?> GetByUserName(string userName)

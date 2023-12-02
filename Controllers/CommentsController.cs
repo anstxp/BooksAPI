@@ -46,7 +46,7 @@ public class CommentsController : Controller
          {
              Id = comment.Id,
              Content = comment.Content,
-             Date = request.Date,
+             PublishDate = request.Date,
              User = new UserDto()
              {
                  Id = comment.User.Id,
@@ -89,7 +89,6 @@ public class CommentsController : Controller
     public async Task<IActionResult> GetComments()
     {
         var comments = await _commentRepository.GetCommentsAsync();
-        //Convert Domain model to DTO
         var response = new List<CommentDto>();
         foreach(var comment in comments)
         {
@@ -97,7 +96,7 @@ public class CommentsController : Controller
             {
                 Id = comment!.Id,
                 Content = comment.Content,
-                Date = comment.Date,
+                PublishDate = comment.Date,
                 User = new UserDto()
                 {
                     Id = comment.User.Id,

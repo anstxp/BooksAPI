@@ -5,6 +5,7 @@ using BooksAPI.Models.DTO.BlogPostDto;
 using BooksAPI.Models.DTO.BookCategoryDto;
 using BooksAPI.Models.DTO.BookDTO;
 using BooksAPI.Repositories.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -29,7 +30,8 @@ public class BlogPostsController : Controller
         _userRepository = userRepository;
         _authorRepository = authorRepository;
     }
-
+    
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> CreateBlogPost(CreateBlogPostDto request)
     {
@@ -39,26 +41,20 @@ public class BlogPostsController : Controller
             var blogPost = new BlogPost
             {
                 Title = request.Title,
+                Book = request.Book,
                 Content = request.Content,
                 ImageUrl = request.ImageUrl,
                 PublishDate = request.PublishDate,
                 IsVisible = request.IsVisible,
                 User = existingUser,
-                Books = new List<Book>(),
             };
-
-            foreach (var bookGuid in request.Books!)
-            {
-                var existingBook = await _bookRepository.GetById(bookGuid);
-                if (existingBook != null)
-                    blogPost.Books.Add(existingBook);
-            }
 
             blogPost = await _blogPostRepository.CreateAsync(blogPost);
             var response = new BlogPostDto
             {
                 Id = blogPost.Id,
                 Title = blogPost.Title,
+                Book = request.Book,
                 Content = blogPost.Content,
                 PublishDate = blogPost.PublishDate,
                 User = new UserDto()
@@ -75,27 +71,6 @@ public class BlogPostsController : Controller
                 },
                 IsVisible = blogPost.IsVisible,
                 ImageUrl = blogPost.ImageUrl,
-                Books = blogPost.Books!.Select(x => new BookDto
-                {
-                    Id = x.Id,
-                    Title = x.Title,
-                    Description = x.Description,
-                    UrlHadle = x.UrlHandle,
-                    Categories = x.Categories.Select(category => new BookCategoryDto
-                    {
-                        Id = category.Id,
-                        Name = category.Name,
-                        Description = category.Description!,
-                        UrlHandle = category.UrlHandle,
-                    }).ToList(),
-                    Authors = x.Authors.Select(author => new AuthorDto
-                    {
-                    Id = author.Id,
-                    FullName = author.FullName,
-                    Description = author.Description!,
-                    UrlHandle = author.UrlHandle
-                    }).ToList()
-                }).ToList()
             };
             return Ok(response);
         }
@@ -118,6 +93,7 @@ public class BlogPostsController : Controller
             {
                 Id = blogPost.Id,
                 Title = blogPost.Title,
+                Book = blogPost.Book,
                 Content = blogPost.Content,
                 PublishDate = blogPost.PublishDate,
                 IsVisible = blogPost.IsVisible,
@@ -134,27 +110,6 @@ public class BlogPostsController : Controller
                         ProfilePhotoUrl = blogPost.User.UserInfo.ProfilePhotoUrl
                     }
                 },
-                Books = blogPost.Books!.Select(x => new BookDto
-                {
-                    Id = x.Id,
-                    Title = x.Title,
-                    Description = x.Description,
-                    UrlHadle = x.UrlHandle,
-                    Authors = x.Authors.Select(author => new AuthorDto
-                    {
-                        Id = author.Id,
-                        FullName = author.FullName,
-                        Description = author.Description!,
-                        UrlHandle = author.UrlHandle
-                    }).ToList(),
-                    Categories = x.Categories.Select(category => new BookCategoryDto
-                    {
-                        Id = category.Id,
-                        Name = category.Name,
-                        Description = category.Description!,
-                        UrlHandle = category.UrlHandle,
-                    }).ToList(),
-                }).ToList()
             });
         }
         return Ok(response);
@@ -171,6 +126,7 @@ public class BlogPostsController : Controller
         {
             Id = existingBlogPost.Id,
             Title = existingBlogPost.Title,
+            Book = existingBlogPost.Book,
             Content = existingBlogPost.Content,
             PublishDate = existingBlogPost.PublishDate,
             User = new UserDto()
@@ -187,31 +143,11 @@ public class BlogPostsController : Controller
             },
             IsVisible = existingBlogPost.IsVisible,
             ImageUrl = existingBlogPost.ImageUrl,
-            Books = existingBlogPost.Books!.Select(x => new BookDto
-            {
-                Id = x.Id,
-                Title = x.Title,
-                Description = x.Description,
-                UrlHadle = x.UrlHandle,
-                Authors = x.Authors.Select(author => new AuthorDto
-                {
-                    Id = author.Id,
-                    FullName = author.FullName,
-                    Description = author.Description!,
-                    UrlHandle = author.UrlHandle
-                }).ToList(),
-                Categories = x.Categories.Select(category => new BookCategoryDto
-                {
-                    Id = category.Id,
-                    Name = category.Name,
-                    Description = category.Description!,
-                    UrlHandle = category.UrlHandle,
-                }).ToList(),
-            }).ToList()
         };
         return Ok(response);
     }
     
+    [Authorize]
     [HttpPut]
     [Route("{id:Guid}")]
     public async Task<IActionResult> EditBook([FromRoute] Guid id, UpdateBlogPostDto request)
@@ -221,21 +157,12 @@ public class BlogPostsController : Controller
         {
             Id = id,
             Title = request.Title,
+            Book = request.Book,
             Content = request.Content,
             ImageUrl = request.ImageUrl,
             PublishDate = request.PublishDate,
             IsVisible = request.IsVisible,
-            Books = new List<Book>()
         };
-        
-        foreach (var bookGuid in request.Books!)
-        {
-            var existingBook = await _bookRepository.GetById(bookGuid);
-            if (existingBook != null)
-            {
-                blogPost.Books.Add(existingBook);
-            }
-        }
         
         var updatedBlogPost = await _blogPostRepository.UpdateAsync(blogPost);
         if (updatedBlogPost == null)
@@ -247,36 +174,16 @@ public class BlogPostsController : Controller
         {
             Id = updatedBlogPost.Id,
             Title = updatedBlogPost.Title,
+            Book = updatedBlogPost.Book,
             Content = updatedBlogPost.Content,
             PublishDate = updatedBlogPost.PublishDate,
-            Books = updatedBlogPost.Books!.Select(x => new BookDto
-            {
-                Id = x.Id,
-                Title = x.Title,
-                Description = x.Description,
-                UrlHadle = x.UrlHandle,
-                Authors = x.Authors.Select(author => new AuthorDto
-                {
-                    Id = author.Id,
-                    FullName = author.FullName,
-                    Description = author.Description!,
-                    UrlHandle = author.UrlHandle,
-                    AuthorImageUrl = author.AuthorImageUrl
-                }).ToList(),
-                Categories = x.Categories.Select(category => new BookCategoryDto
-                {
-                    Id = category.Id,
-                    Name = category.Name,
-                    Description = category.Description!,
-                    UrlHandle = category.UrlHandle,
-                }).ToList(),
-            }).ToList(),
             IsVisible = updatedBlogPost.IsVisible,
             ImageUrl = updatedBlogPost.ImageUrl
         };
         return Ok(response);
     }
     
+    [Authorize]
     [HttpDelete]
     [Route("{id:Guid}")]
     public async Task<ActionResult> DeleteBlogPost([FromRoute] Guid id)
@@ -291,6 +198,7 @@ public class BlogPostsController : Controller
         {
             Id = blogPost.Id,
             Title = blogPost.Title,
+            Book = blogPost.Book,
             Content = blogPost.Content,
             PublishDate = blogPost.PublishDate,
             IsVisible = blogPost.IsVisible,

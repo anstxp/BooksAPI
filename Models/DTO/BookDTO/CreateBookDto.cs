@@ -12,5 +12,6 @@ public class CreateBookDto
     public string UrlHadle { get; set; }
     public int Price { get; set; }
     public Guid[] Categories { get; set; }
+    public Guid[] Collections { get; set; }
     public Guid[] Authors { get; set; }
 }

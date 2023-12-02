@@ -26,6 +26,7 @@ public class AuthorRepository : IAuthorRepository
     {
         var authors = _dbContext.Authors
             .Include(x => x.Books)
+            .OrderBy(x => x.FullName)
             .AsQueryable();
         
         //Sorting

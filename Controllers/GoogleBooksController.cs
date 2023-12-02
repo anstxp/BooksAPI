@@ -13,8 +13,8 @@ public class GoogleBooksController : Controller
     {
         _client = client;
     }
-
     [HttpGet]
+    [Route("{name}")]
     public async Task<IActionResult> GetBooks(string name)
     {
         var books = await _client.GetBooksAsync(name);

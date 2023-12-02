@@ -42,7 +42,7 @@ public class BookCategoriesController : Controller
             Id = bookCategory.Id,
             Name = bookCategory.Name,
             UrlHandle = bookCategory.UrlHandle,
-            Description = bookCategory.Description
+            Description = bookCategory.Description,
         };
         return Ok(response);
     }
@@ -68,7 +68,9 @@ public class BookCategoriesController : Controller
                     Id = x.Id,
                     Title = x.Title,
                     Price = x.Price,
-                    Description = x.Description!
+                    Description = x.Description!,
+                    ImageUrl = x.ImageUrl,
+                    UrlHadle = x.UrlHandle
                 }).ToList()
             });
         }
@@ -94,7 +96,9 @@ public class BookCategoriesController : Controller
                 Id = x.Id,
                 Title = x.Title,
                 Price = x.Price,
-                Description = x.Description!
+                Description = x.Description!,
+                ImageUrl = x.ImageUrl,
+                UrlHadle = x.UrlHandle
             }).ToList()
         };
         return Ok(response);
@@ -117,7 +121,9 @@ public class BookCategoriesController : Controller
                 Id = x.Id,
                 Title = x.Title,
                 Price = x.Price,
-                Description = x.Description!
+                Description = x.Description!,
+                ImageUrl = x.ImageUrl,
+                UrlHadle = x.UrlHandle
             }).ToList()
         };
         return Ok(response);
@@ -164,7 +170,9 @@ public class BookCategoriesController : Controller
                 Id = x.Id,
                 Title = x.Title,
                 Price = x.Price,
-                Description = x.Description!
+                Description = x.Description!,
+                ImageUrl = x.ImageUrl,
+                UrlHadle = x.UrlHandle
             }).ToList()
         };
         return Ok(response);

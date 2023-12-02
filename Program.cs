@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json.Serialization;
 using BooksAPI.Clients;
 using BooksAPI.Data;
 using Microsoft.EntityFrameworkCore;
@@ -16,7 +17,6 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 
 var logger = new LoggerConfiguration()
     .WriteTo.Console()
@@ -40,6 +40,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // {
 //     options.UseSqlServer(builder.Configuration.GetConnectionString("ConnectionAuthString"));
 // });
+builder.Services.AddControllers().AddJsonOptions(x =>
+    x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+
 builder.Services.AddSingleton<Client>();
 builder.Services.AddScoped<IBookCategoryRepository, BookCategoryRepository>();
 builder.Services.AddScoped<IBookRepository, BookRepository>();
@@ -50,6 +53,12 @@ builder.Services.AddScoped<IImageRepository, ImageRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped<IFeedbackRepository, FeedbackRepository>();
+builder.Services.AddScoped<ICollectionRepository, CollectionRepository>();
+builder.Services.AddScoped<IShoppingCartRepository, ShoppingCartRepository>();
+builder.Services.AddScoped<IShoppingCartItemRepository, ShoppingCartItemRepository>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+
+
 
 builder.Services.AddIdentityCore<IdentityUser>()
     .AddRoles<IdentityRole>()

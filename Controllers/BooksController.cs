@@ -1,11 +1,14 @@
+using System.Collections.ObjectModel;
 using BooksAPI.Models.Domain;
 using BooksAPI.Models.DTO;
 using BooksAPI.Models.DTO.AuthDTO;
 using BooksAPI.Models.DTO.AuthorDto;
 using BooksAPI.Models.DTO.BookCategoryDto;
 using BooksAPI.Models.DTO.BookDTO;
+using BooksAPI.Models.DTO.CollectionDTO;
 using BooksAPI.Models.DTO.CommentDTO;
 using BooksAPI.Repositories.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BooksAPI.Controllers;
@@ -17,15 +20,18 @@ public class BooksController : Controller
     private readonly IBookRepository _bookRepository;
     private readonly IBookCategoryRepository _categoryRepository;
     private readonly IAuthorRepository _authorRepository;
+    private readonly ICollectionRepository _collectionRepository;
     public BooksController(IBookRepository bookRepository, 
         IBookCategoryRepository categoryRepository,
-        IAuthorRepository authorRepository)
+        IAuthorRepository authorRepository, ICollectionRepository collectionRepository)
     {
         _bookRepository = bookRepository;
         _categoryRepository = categoryRepository;
         _authorRepository = authorRepository;
+        _collectionRepository = collectionRepository;
     }
     
+    [Authorize(Roles = "admin")]
     [HttpPost]
     public async Task<IActionResult> CreateBook(CreateBookDto request)
     {
@@ -39,6 +45,7 @@ public class BooksController : Controller
             UrlHandle = request.UrlHadle, 
             Price = request.Price,
             Categories = new List<BookCategory>(),
+            Collections = new List<Collection>(),
             Authors = new List<Author>(),
             Comments = new List<Comment>(),
         };
@@ -55,6 +62,13 @@ public class BooksController : Controller
             var existingAuthor = await _authorRepository.GetById(authorGuid);
             if(existingAuthor !=null )
                 book.Authors.Add(existingAuthor);
+        }
+        
+        foreach (var collectionGuid in request.Collections)
+        {
+            var existingCollection = await _collectionRepository.GetById(collectionGuid);
+            if(existingCollection !=null )
+                book.Collections.Add(existingCollection);
         }
 
         book = await _bookRepository.CreateAsync(book);
@@ -75,6 +89,13 @@ public class BooksController : Controller
                 UrlHandle = x.UrlHandle,
                 Description = x.Description!
             }).ToList(),
+            Collection = book.Collections.Select(x => new CollectionDto
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Description = x.Description,
+                UrlHandle = x.UrlHandle
+            }).ToList(),
             Authors = book.Authors.Select(x => new AuthorDto
             {
                 Id = x.Id,
@@ -87,7 +108,7 @@ public class BooksController : Controller
             {
                 Id = x.Id,
                 Content = x.Content,
-                Date = x.Date,
+                PublishDate = x.Date,
                 User = new UserDto()
                 {
                     Id = x.User.Id,
@@ -126,6 +147,13 @@ public class BooksController : Controller
                     Name = x.Name,
                     UrlHandle = x.UrlHandle,
                     Description = x.Description!
+                }).ToList(),
+                Collection = book.Collections.Select(x => new CollectionDto
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    Description = x.Description,
+                    UrlHandle = x.UrlHandle
                 }).ToList(),
                 Authors = book.Authors.Select(x => new AuthorDto
                 {
@@ -175,6 +203,13 @@ public class BooksController : Controller
                 UrlHandle = x.UrlHandle,
                 Description = x.Description!
             }).ToList(),
+            Collection = existingBook.Collections.Select(x => new CollectionDto
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Description = x.Description,
+                UrlHandle = x.UrlHandle
+            }).ToList(),
             Authors = existingBook.Authors.Select(x => new AuthorDto
             {
                 Id = x.Id,
@@ -199,6 +234,7 @@ public class BooksController : Controller
         return Ok(response);
     }
     
+    [Authorize(Roles = "admin")]
     [HttpPut]
     [Route("{id:Guid}")]
     public async Task<IActionResult> EditBook([FromRoute] Guid id, UpdateBookDto request)
@@ -216,6 +252,7 @@ public class BooksController : Controller
             Price = request.Price,
             Categories = new List<BookCategory>(),
             Authors = new List<Author>(),
+            Collections = new List<Collection>(),
         };
 
         foreach (var categoryGuid in request.Categories)
@@ -233,6 +270,15 @@ public class BooksController : Controller
             if (existingAuthor != null)
             {
                 book.Authors.Add(existingAuthor);
+            }
+        }
+        
+        foreach (var collectionGuid in request.Collections)
+        {
+            var existingCollection = await _collectionRepository.GetById(collectionGuid);
+            if (existingCollection != null)
+            {
+                book.Collections.Add(existingCollection);
             }
         }
         
@@ -259,6 +305,13 @@ public class BooksController : Controller
                 UrlHandle = x.UrlHandle,
                 Description = x.Description!
             }).ToList(),
+            Collection = book.Collections.Select(x => new CollectionDto
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Description = x.Description,
+                UrlHandle = x.UrlHandle
+            }).ToList(),
             Authors = book.Authors.Select(x => new AuthorDto
             {
                 Id = x.Id,
@@ -271,6 +324,7 @@ public class BooksController : Controller
         return Ok(response);
     }
     
+    [Authorize]
     [HttpDelete]
     [Route("{id:Guid}")]
     public async Task<ActionResult> DeleteBook([FromRoute] Guid id)
@@ -296,10 +350,65 @@ public class BooksController : Controller
         return Ok(response);
     }
     
-    [HttpGet("{title}")]
-    public async Task<IActionResult> GetBookByName(string title)
+    // [HttpGet("{title}")]
+    // public async Task<IActionResult> GetBookByName(string title)
+    // {
+    //     var existingBook = await _bookRepository.GetByTitle(title);
+    //     if (existingBook is null)
+    //         return NotFound();
+    //     var response = new BookDto
+    //     {
+    //         Id = existingBook.Id,
+    //         Title = existingBook.Title,
+    //         Description = existingBook.Description,
+    //         ISBN = existingBook.ISBN,
+    //         PageCount = existingBook.PageCount,
+    //         ImageUrl = existingBook.ImageUrl,
+    //         UrlHadle = existingBook.UrlHandle, 
+    //         Price = existingBook.Price,
+    //         Categories = existingBook.Categories.Select(x => new BookCategoryDto
+    //         {
+    //             Id = x.Id,
+    //             Name = x.Name,
+    //             UrlHandle = x.UrlHandle,
+    //             Description = x.Description!
+    //         }).ToList(),
+    //         Collection = existingBook.Collections.Select(x => new CollectionDto
+    //         {
+    //             Id = x.Id,
+    //             Name = x.Name,
+    //             Description = x.Description,
+    //             UrlHandle = x.UrlHandle
+    //         }).ToList(),
+    //         Authors = existingBook.Authors.Select(x => new AuthorDto
+    //         {
+    //             Id = x.Id,
+    //             FullName = x.FullName,
+    //             UrlHandle = x.UrlHandle,
+    //             AuthorImageUrl = x.AuthorImageUrl,
+    //             Description = x.Description
+    //         }).ToList(),
+    //         Comments = existingBook.Comments.Select(x => new CommentDto
+    //         {
+    //             Id = x.Id,
+    //             Content = x.Content,
+    //             User = new UserDto()
+    //             {
+    //                 Id = x.User.Id,
+    //                 UserName = x.User.UserName!,
+    //                 Email = x.User.Email!,
+    //             }
+    //         }).ToList()
+    //         
+    //     };
+    //     return Ok(response);
+    // }
+    //
+    
+    [HttpGet("{urlHandle}")]
+    public async Task<IActionResult> GetBookByUrl(string urlHandle)
     {
-        var existingBook = await _bookRepository.GetByTitle(title);
+        var existingBook = await _bookRepository.GetByUrl(urlHandle);
         if (existingBook is null)
             return NotFound();
         var response = new BookDto
@@ -318,6 +427,13 @@ public class BooksController : Controller
                 Name = x.Name,
                 UrlHandle = x.UrlHandle,
                 Description = x.Description!
+            }).ToList(),
+            Collection = existingBook.Collections.Select(x => new CollectionDto
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Description = x.Description,
+                UrlHandle = x.UrlHandle
             }).ToList(),
             Authors = existingBook.Authors.Select(x => new AuthorDto
             {
@@ -338,8 +454,63 @@ public class BooksController : Controller
                     Email = x.User.Email!,
                 }
             }).ToList()
-            
+
         };
+        return Ok(response);
+    }
+    
+    [HttpGet("/search/{query}")]
+    public async Task<IActionResult> SearchByQuery(string query)
+    {
+        var existingBooks = await _bookRepository.SearchByTitle(query);
+        var response = new List<BookDto>();
+        foreach(var book in existingBooks)
+        {
+            response.Add(new BookDto
+            {
+                Id = book!.Id,
+                Title = book.Title,
+                Description = book.Description,
+                ISBN = book.ISBN,
+                PageCount = book.PageCount,
+                ImageUrl = book.ImageUrl,
+                UrlHadle = book.UrlHandle, 
+                Price = book.Price,
+                Categories = book.Categories.Select(x => new BookCategoryDto
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    UrlHandle = x.UrlHandle,
+                    Description = x.Description!
+                }).ToList(),
+                Collection = book.Collections.Select(x => new CollectionDto
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    Description = x.Description,
+                    UrlHandle = x.UrlHandle
+                }).ToList(),
+                Authors = book.Authors.Select(x => new AuthorDto
+                {
+                    Id = x.Id,
+                    FullName = x.FullName,
+                    UrlHandle = x.UrlHandle,
+                    AuthorImageUrl = x.AuthorImageUrl,
+                    Description = x.Description
+                }).ToList(),
+                Comments = book.Comments.Select(x => new CommentDto
+                {
+                    Id = x.Id,
+                    Content = x.Content,
+                    User = new UserDto()
+                    {
+                        Id = x.User.Id,
+                        UserName = x.User.UserName!,
+                        Email = x.User.Email!,
+                    }
+                }).ToList()
+            });
+        }
         return Ok(response);
     }
 }

@@ -9,6 +9,7 @@ public class UpdateBookDto
     public string ImageUrl { get; set; }
     public string UrlHadle { get; set; }
     public int Price { get; set; }
+    public List<Guid> Collections { get; set; } = new List<Guid>();
     public List<Guid> Categories { get; set; } = new List<Guid>();
     public List<Guid> Authors { get; set; } = new List<Guid>();
 }

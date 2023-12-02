@@ -82,13 +82,14 @@ public class AuthController : Controller
             var checkPassword = await _userManager.CheckPasswordAsync(user, request.Password);
             if (checkPassword)
             {
-                //Get Roles 
                 var roles = await _userManager.GetRolesAsync(user);
                 {
                     var jwtToken = _tokenRepository.CreateJwtToken(user, roles.ToList());
                     var response = new LoginResponseDto
                     {
-                        JwtToken = jwtToken
+                        JwtToken = jwtToken,
+                        UserId = user.Id,
+                        Roles = roles.ToList() // Передайте список ролей користувача
                     };
                     return Ok(response);
                 }
@@ -97,20 +98,30 @@ public class AuthController : Controller
         return BadRequest("Something went wrong");
     }
     
-    // [Authorize]
-    // [HttpPut("EditUser")]
-    // public async Task<IActionResult> PatchUser(UpdateProfileDto userModel)
-    // {
-    //     User user = (await _userManager.GetUserAsync(User) as User);
-    //     if (user != null)
-    //     { 
-    //         user.UpdateFromUserModel(userModel); // update all fields except password
-    //             
-    //         await _userManager.UpdateAsync(user);
-    //         return Ok();
-    //     }
-    //     return BadRequest();
-    // }
+    [HttpGet]
+    [Route("{id}")]
+    public async Task<IActionResult> GetInfo([FromRoute] Guid id)
+    {
+        var existingUser = await _userRepository.GetById(id);
+        if (existingUser is null)
+            return NotFound();
+        var user = new UserDto()
+        {
+            UserName = existingUser.UserName!,
+            PhoneNumber = existingUser.PhoneNumber,
+            Email = existingUser.Email!,
+            UserInfo = new UserInfoDto()
+            {
+                FirstName = existingUser.UserInfo.FirstName,
+                LastName = existingUser.UserInfo.LastName,
+                ProfilePhotoUrl = existingUser.UserInfo.ProfilePhotoUrl,
+                Gender = existingUser.UserInfo.Gender,
+                Genre = existingUser.UserInfo.Genre,
+                Birthdate = existingUser.UserInfo.Birthdate
+            }
+        };
+        return Ok(user);
+    }
 
     [HttpDelete]
     [Route("DeleteAccount/{userId}")]
@@ -128,62 +139,43 @@ public class AuthController : Controller
         }
     }
     
-    [HttpGet("GetRole")]
-    public async Task<IActionResult> GetUserRole()
-    {
-        var claimsPrincipal = User;
-        if (claimsPrincipal != null)
-        {
-            var identityUser = await _userManager.GetUserAsync(User);
-            if (identityUser != null)
-            {
-                var roles = await _userManager.GetRolesAsync(identityUser);
-                var role = roles.FirstOrDefault();
-                return Ok(role);
-            }
-        }
-        return NotFound();
-    }
-    
-    [HttpPatch]
+    [Authorize]
+    [HttpPut]
     [Route("{id:Guid}")]
-    public async Task<IActionResult> EditUser([FromRoute] Guid id, [FromBody]UpdateProfileDto request)
+    public async Task<IActionResult> EditUser([FromRoute] Guid id, [FromBody] UpdateProfileDto request)
     {
         var existedUser = await _userRepository.GetById(id);
-        
-        var user = new User
-        {
-            Id = id.ToString(),
-            UserName = request.UserName,
-            Email = request.Email,
-            UserInfo = new UserInfo
-            {
-                FirstName = request.FirstName,
-                LastName = request.LastName,
-                Birthdate = request.Birthdate,
-                Gender = request.Gender,
-                Genre = request.Genre,
-                ProfilePhotoUrl = request.ProfilePhotoUrl
-            }
-        };
-        
-        var updatedUser = await _userManager.UpdateAsync(user);
-        // Convert Domain model to DTO
+        if (existedUser == null) NotFound();
+
+        // Modify the existing user entity with the updated values
+        existedUser.UserName = request.UserName;
+        existedUser.Email = request.Email;
+        existedUser.UserInfo.FirstName = request.FirstName;
+        existedUser.UserInfo.LastName = request.LastName;
+        existedUser.UserInfo.Birthdate = request.Birthdate;
+        existedUser.UserInfo.Gender = request.Gender;
+        existedUser.UserInfo.Genre = request.Genre;
+        existedUser.UserInfo.ProfilePhotoUrl = request.ProfilePhotoUrl;
+
+        // Save changes to the database
+        await _userRepository.UpdateAsync(existedUser);
+
         var response = new UserDto
         {
-            Id = user.Id,
-            UserName = user.UserName,
-            Email = user.Email,
+            Id = existedUser.Id,
+            UserName = existedUser.UserName,
+            Email = existedUser.Email,
             UserInfo = new UserInfoDto()
             {
-                FirstName = user.UserInfo.FirstName,
-                LastName = user.UserInfo.LastName,
-                Birthdate = user.UserInfo.Birthdate,
-                Gender = user.UserInfo.Gender,
-                Genre = user.UserInfo.Genre,
-                ProfilePhotoUrl = user.UserInfo.ProfilePhotoUrl
+                FirstName = existedUser.UserInfo.FirstName,
+                LastName = existedUser.UserInfo.LastName,
+                Birthdate = existedUser.UserInfo.Birthdate,
+                Gender = existedUser.UserInfo.Gender,
+                Genre = existedUser.UserInfo.Genre,
+                ProfilePhotoUrl = existedUser.UserInfo.ProfilePhotoUrl
             }
         };
+
         return Ok(response);
     }
 }

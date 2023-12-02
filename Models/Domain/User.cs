@@ -9,5 +9,6 @@ namespace BooksAPI.Models.Domain;
 
 public class User : IdentityUser
 {
-    public UserInfo UserInfo { get; set; }
+    public UserInfo UserInfo { get; set; } 
+    public IEnumerable<Order> Orders { get; set; }
 }

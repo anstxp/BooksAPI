@@ -4,11 +4,8 @@ using Microsoft.AspNetCore.Identity;
 
 namespace BooksAPI.Models.DTO.AuthDTO;
 
-public class UserDto 
+public class UserDto : IdentityUser
 {
-    public string Id { get; set; }
-    public string UserName { get; set; }
-    public string Email { get; set; }
     [ForeignKey("UserInfoId")]
     public UserInfoDto UserInfo { get; set; }
 }

@@ -7,14 +7,6 @@ public class ShoppingCart
 {
     public Guid Id { get; set; }
     public ICollection<ShoppingCartItem> Items { get; set; }
-    [Required]
-    public Guid UserId { get; set; }
+    public decimal Total => Items?.Sum(item => item.Price * item.Quantity) ?? 0;
     public User User { get; set; }
-    public decimal Total
-    {
-        get
-        {
-            return Items.Sum(item => item.Quantity * item.Book.Price);
-        }
-    }
 }

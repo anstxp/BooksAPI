@@ -26,10 +26,7 @@ public class BlogPostRepository : IBlogPostRepository
         var blogPosts = _dbContext.BlogPosts
             .Include(x => x.User)
             .Include(x => x.User.UserInfo)
-            .Include(x => x.Books)!
-            .ThenInclude(book => book.Authors)
-            .Include(x => x.Books)!
-            .ThenInclude(book => book.Categories)
+            .OrderByDescending(x => x.PublishDate)
             .AsQueryable();
         
         //Filtering
@@ -37,7 +34,7 @@ public class BlogPostRepository : IBlogPostRepository
         {
             if (filterOn.Equals("Book", StringComparison.OrdinalIgnoreCase))
             {
-                blogPosts = blogPosts.Where(x => x.Books!.Any(c => c.Title.Contains(filterQuery)));
+                blogPosts = blogPosts.Where(x => x.Book.Contains(filterQuery));
             }
         }
         
@@ -68,10 +65,6 @@ public class BlogPostRepository : IBlogPostRepository
         return await _dbContext.BlogPosts
             .Include(x => x.User)
             .Include(x => x.User.UserInfo)
-            .Include(x => x.Books)!
-            .ThenInclude(book => book.Authors)
-            .Include(x => x.Books)!
-            .ThenInclude(book => book.Categories)
             .FirstOrDefaultAsync(x => x.Id == id);
     }
 
@@ -80,10 +73,6 @@ public class BlogPostRepository : IBlogPostRepository
         var existingPost = await _dbContext.BlogPosts
             .Include(x => x.User)
             .Include(x => x.User.UserInfo)
-            .Include(x => x.Books)!
-            .ThenInclude(book => book.Authors)
-            .Include(x => x.Books)!
-            .ThenInclude(book => book.Categories)
             .FirstOrDefaultAsync(x => x.Id == blogPost.Id);
         if (existingPost != null)
         {
